@@ -38,5 +38,6 @@
   "contentInvalidSelector": { "message": "無効なセレクタです: $selector$", "placeholders": { "selector": { "content": "$1" } } },
   "contentConversionError": { "message": "変換中にエラーが発生しました: $error$", "placeholders": { "error": { "content": "$1" } } },
   "contentScriptLoaded": { "message": "Unicode URL Converter: コンテンツスクリプトが読み込まれました" },
-  "consoleConversionError": { "message": "変換エラー:" }
+  "consoleConversionError": { "message": "変換エラー:" },
+  "example_info": { "message": "例:" }
 }

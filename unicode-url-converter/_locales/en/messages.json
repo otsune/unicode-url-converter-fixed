@@ -38,5 +38,6 @@
   "contentInvalidSelector": { "message": "Invalid selector: $selector$", "placeholders": { "selector": { "content": "$1" } } },
   "contentConversionError": { "message": "An error occurred during conversion: $error$", "placeholders": { "error": { "content": "$1" } } },
   "contentScriptLoaded": { "message": "Unicode URL Converter: Content script loaded" },
-  "consoleConversionError": { "message": "Conversion error:" }
+  "consoleConversionError": { "message": "Conversion error:" },
+  "example_info": { "message": "Example:" }
 }
