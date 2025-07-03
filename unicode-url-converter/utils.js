@@ -1,16 +1,4 @@
-const DEFAULT_MAP = {
-  '\u02F8': ':',
-  '\u2024': '.',
-  '\u2044': '/'
-};
-
-export function getConversionMap() {
-  return new Promise(resolve => {
-    chrome.storage.local.get(['conversionMap'], result => {
-      resolve(result.conversionMap || DEFAULT_MAP);
-    });
-  });
-}
+import { getConversionMap } from './storage.js';
 
 export function createUnicodePattern(map) {
   const keys = Object.keys(map);

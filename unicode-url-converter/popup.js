@@ -1,18 +1,14 @@
-import { getConversionMap, getTargetTags, setTargetTags, removeSettings } from './storage.js';
+import { getConversionMap, getTargetTags, setTargetTags, setConversionMap, removeSettings } from './storage.js';
 import { localizeHtml, showStatus, renderConversionList, renderHistory, initSortableList, handleAddFormSubmit, handleConversionListClick, handleClearHistoryClick } from './ui.js';
 
 document.addEventListener('DOMContentLoaded', function() {
   localizeHtml();
 
   const convertBtn = document.getElementById('convertBtn');
-  const tagsInput = document.getElementById('tagsInput');
-  const tagsForm = document.getElementById('tagsForm');
   const addForm = document.getElementById('addForm');
   const conversionList = document.getElementById('conversionList');
-  const importBtn = document.getElementById('importBtn');
-  const importFile = document.getElementById('importFile');
+  const importInput = document.getElementById('importInput');
   const exportBtn = document.getElementById('exportBtn');
-  const resetBtn = document.getElementById('resetBtn');
   const clearHistoryBtn = document.getElementById('clearHistoryBtn');
 
   convertBtn.addEventListener('click', async function() {
@@ -62,32 +58,24 @@ document.addEventListener('DOMContentLoaded', function() {
     }
   });
 
-  tagsForm.addEventListener('submit', function(e) {
-    e.preventDefault();
-    const tags = tagsInput.value.trim();
-    if (tags) {
-      setTargetTags(tags);
-      showStatus(true, chrome.i18n.getMessage('statusTagsSaved'));
-    }
-  });
-
-  async function initTagsInput() {
-    const tags = await getTargetTags();
-    tagsInput.value = tags;
-  }
-
-  initTagsInput();
-
-  importBtn.addEventListener('click', () => importFile.click());
-
-  importFile.addEventListener('change', async (event) => {
+  importInput.addEventListener('change', async (event) => {
     const file = event.target.files[0];
     if (!file) return;
     const reader = new FileReader();
     reader.onload = async (e) => {
       try {
         const map = JSON.parse(e.target.result);
-        // TODO: インポートされたデータのバリデーション
+        // Validate imported data
+        if (typeof map !== 'object' || map === null) {
+          showStatus(false, chrome.i18n.getMessage('statusImportError'));
+          return;
+        }
+        for (const key in map) {
+          if (!/^\\u[0-9A-Fa-f]{4}$/.test(key) || typeof map[key] !== 'string' || map[key].length !== 1) {
+            showStatus(false, chrome.i18n.getMessage('statusImportError'));
+            return;
+          }
+        }
         setConversionMap(map);
         renderConversionList();
         showStatus(true, chrome.i18n.getMessage('statusImportSuccess'));
@@ -111,16 +99,6 @@ document.addEventListener('DOMContentLoaded', function() {
       document.body.removeChild(a);
       URL.revokeObjectURL(url);
     }, 100);
-  });
-
-  resetBtn.addEventListener('click', () => {
-    if (confirm(chrome.i18n.getMessage('confirmReset'))) {
-      removeSettings(['conversionMap', 'targetTags'], () => {
-        renderConversionList();
-        initTagsInput();
-        showStatus(true, chrome.i18n.getMessage('statusResetSuccess'));
-      });
-    }
   });
 
   clearHistoryBtn.addEventListener('click', handleClearHistoryClick);
