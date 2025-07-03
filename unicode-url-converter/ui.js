@@ -5,7 +5,13 @@ function isChromeAPI() {
   return typeof chrome !== 'undefined' && chrome.i18n;
 }
 
-// i18nメッセージを安全に取得
+/**
+ * 指定されたキーに対応する国際化メッセージを取得します。
+ * Chrome APIが利用できない場合は、デフォルトのメッセージを使用します。
+ * @param {string} key - メッセージのキー。
+ * @param {Array<string|number>} [substitutions=[]] - メッセージ内のプレースホルダーを置き換えるための値の配列。
+ * @returns {string} 取得されたメッセージ文字列。
+ */
 function getMessage(key, substitutions = []) {
   if (!isChromeAPI()) {
     // デフォルトメッセージ（英語）
@@ -36,8 +42,15 @@ function getMessage(key, substitutions = []) {
     // Chrome i18n形式のプレースホルダーを処理
     if (substitutions.length > 0) {
       substitutions.forEach((sub, index) => {
-        message = message.replace(`$${index + 1}`, sub);
-        message = message.replace(`$count$`, sub);
+        message = message.replace(`${index + 1}`, sub);
+        message = message.replace(`$countimport { getConversionMap, getHistory, setConversionMap, saveHistoryEntry, clearHistory } from './storage.js';
+
+// chrome APIが利用可能かチェック
+function isChromeAPI() {
+  return typeof chrome !== 'undefined' && chrome.i18n;
+}
+
+, sub);
       });
     }
     return message;
@@ -45,6 +58,10 @@ function getMessage(key, substitutions = []) {
   return chrome.i18n.getMessage(key, substitutions);
 }
 
+/**
+ * HTML要素のdata-i18n属性とdata-i18n-placeholder属性に基づいて、
+ * ページ内のテキストを国際化メッセージに置き換えます。
+ */
 export function localizeHtml() {
   // data-i18n属性を持つ要素を処理
   document.querySelectorAll('[data-i18n]').forEach(elem => {
@@ -59,6 +76,13 @@ export function localizeHtml() {
   });
 }
 
+/**
+ * ユーザーインターフェースにステータスメッセージを表示します。
+ * メッセージは一定時間後に自動的に非表示になります。
+ * @param {boolean} success - 処理が成功したかどうかを示すフラグ。成功ならtrue、失敗ならfalse。
+ * @param {string} message - 表示するメッセージテキスト。
+ * @param {number} [count=0] - 変換された文字数など、表示する数値。
+ */
 export function showStatus(success, message, count = 0) {
   const statusDiv = document.getElementById('status');
   statusDiv.style.display = 'block';
@@ -77,6 +101,10 @@ export function showStatus(success, message, count = 0) {
   }, 3000);
 }
 
+/**
+ * 変換リストをレンダリングし、UIに表示します。
+ * ストレージから現在の変換マップを取得し、それに基づいてリストアイテムを生成します。
+ */
 export async function renderConversionList() {
   const map = await getConversionMap();
   const list = document.getElementById('conversionList');
@@ -88,9 +116,9 @@ export async function renderConversionList() {
     li.style.alignItems = 'center';
     li.style.marginBottom = '4px';
     li.style.cursor = 'grab';
-    const codePoint = unicode.replace('\\u', 'U+');
+    const codePoint = unicode.replace('\u', 'U+');
     li.innerHTML = `
-      <span style="width:80px;text-align:center;">${String.fromCharCode(parseInt(unicode.replace('\\u',''),16))} (${codePoint})</span>
+      <span style="width:80px;text-align:center;">${String.fromCharCode(parseInt(unicode.replace('\u',''),16))} (${codePoint})</span>
       <span style="width:30px;text-align:center;">→</span>
       <span style="width:30px;text-align:center;">${replace}</span>
       <button class="editBtn" data-key="${unicode}" style="margin-left:8px;">${getMessage('editButton')}</button>
@@ -100,6 +128,10 @@ export async function renderConversionList() {
   });
 }
 
+/**
+ * 変換履歴をレンダリングし、UIに表示します。
+ * ストレージから履歴データを取得し、リストアイテムとして表示します。
+ */
 export async function renderHistory() {
   console.log('renderHistory called');
   const history = await getHistory();

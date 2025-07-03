@@ -1,12 +1,20 @@
+// デフォルトの変換マップ
+// Unicode文字を対応するASCII文字に変換するためのデフォルト設定
 const DEFAULT_MAP = {
   '\u02F8': ':',
   '\u2024': '.',
   '\u2044': '/'
 };
 
-// chrome APIが利用可能かチェック
+/**
+ * Chrome拡張APIが利用可能かどうかをチェックします。
+ * 特にchrome.storage.localが利用可能であることを確認します。
+ * @returns {boolean} Chrome APIが利用可能な場合はtrue、そうでない場合はfalse。
+ */
 function isChromeAPI() {
-  return typeof chrome !== 'undefined' && chrome.storage && chrome.storage.local;
+  return typeof chrome !== 'undefined' &&
+         typeof chrome.storage !== 'undefined' &&
+         typeof chrome.storage.local !== 'undefined';
 }
 
 export async function getConversionMap() {
@@ -20,6 +28,10 @@ export async function getConversionMap() {
   });
 }
 
+/**
+ * 変換マップをChromeストレージに保存します。
+ * @param {Object} map - 保存する変換マップオブジェクト。
+ */
 export function setConversionMap(map) {
   if (!isChromeAPI()) {
     console.warn('Chrome storage API not available');
@@ -28,6 +40,11 @@ export function setConversionMap(map) {
   chrome.storage.local.set({ conversionMap: map });
 }
 
+/**
+ * 変換対象のHTMLタグ（セレクタ）を非同期で取得します。
+ * Chromeストレージに保存された設定があればそれを、なければデフォルト値（'p'）を使用します。
+ * @returns {Promise<string>} 変換対象のタグセレクタを解決するPromise。
+ */
 export async function getTargetTags() {
   if (!isChromeAPI()) {
     return 'p';
@@ -39,6 +56,10 @@ export async function getTargetTags() {
   });
 }
 
+/**
+ * 変換対象のHTMLタグ（セレクタ）をChromeストレージに保存します。
+ * @param {string} tags - 保存するタグセレクタ文字列。
+ */
 export function setTargetTags(tags) {
   if (!isChromeAPI()) {
     console.warn('Chrome storage API not available');
@@ -78,6 +99,9 @@ export async function saveHistoryEntry(entry) {
   });
 }
 
+/**
+ * 変換履歴をすべてクリアします。
+ */
 export function clearHistory() {
   if (!isChromeAPI()) {
     console.warn('Chrome storage API not available');
@@ -86,6 +110,11 @@ export function clearHistory() {
   chrome.storage.local.set({ conversionHistory: [] });
 }
 
+/**
+ * 指定されたキーのストレージ設定を削除します。
+ * @param {string|string[]} keys - 削除するキー、またはキーの配列。
+ * @param {function} [callback] - 削除完了後に呼び出されるコールバック関数。
+ */
 export function removeSettings(keys, callback) {
   if (!isChromeAPI()) {
     console.warn('Chrome storage API not available');

@@ -1,6 +1,13 @@
 import { getConversionMap, getTargetTags, setTargetTags, setConversionMap, removeSettings, saveHistoryEntry } from './storage.js';
 import { localizeHtml, showStatus, renderConversionList, renderHistory, initSortableList, handleAddFormSubmit, handleConversionListClick, handleClearHistoryClick } from './ui.js';
 
+// メッセージアクションの定数
+const MESSAGE_ACTION_PING = 'ping';
+const MESSAGE_ACTION_CONVERT_TEXT = 'convertText';
+
+// ストレージキーの定数
+const STORAGE_KEY_CONVERSION_MAP = 'conversionMap';
+
 document.addEventListener('DOMContentLoaded', function() {
   console.log('DOMContentLoaded event fired');
   
@@ -31,7 +38,13 @@ document.addEventListener('DOMContentLoaded', function() {
   if (!exportBtn) console.error('exportBtn not found');
   if (!clearHistoryBtn) console.error('clearHistoryBtn not found');
 
-  // Content scriptとの通信を確立する関数
+  /**
+   * 指定されたタブでコンテンツスクリプトが動作していることを確認し、必要であれば注入します。
+   * pingメッセージを送信して確認し、失敗した場合はスクリプトを注入して再試行します。
+   * @param {number} tabId - コンテンツスクリプトを確保するタブのID。
+   * @returns {Promise<boolean>} コンテンツスクリプトが準備完了であればtrueを解決するPromise。
+   * @throws {Error} 最大リトライ回数を超えてもコンテンツスクリプトを確保できなかった場合。
+   */
   async function ensureContentScript(tabId) {
     const maxRetries = 3;
     let lastError = null;
@@ -41,7 +54,7 @@ document.addEventListener('DOMContentLoaded', function() {
         console.log(`Content script connection attempt ${attempt}/${maxRetries}`);
         
         // まずpingで接続確認
-        await chrome.tabs.sendMessage(tabId, { action: 'ping' });
+        await chrome.tabs.sendMessage(tabId, { action: MESSAGE_ACTION_PING });
         console.log('Content script is ready');
         return true;
         
@@ -100,7 +113,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const tags = await getTargetTags();
         console.log('Target tags:', tags);
         
-        const response = await chrome.tabs.sendMessage(tab.id, { action: 'convertText', tags: tags });
+        const response = await chrome.tabs.sendMessage(tab.id, { action: MESSAGE_ACTION_CONVERT_TEXT, tags: tags });
         console.log('Conversion response:', response);
         
         showStatus(response.success, response.message, response.count);
