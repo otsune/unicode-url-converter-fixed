@@ -52,23 +52,53 @@
 </head>
 <body>
   <div class="header">
-    <h3>Unicode URL Converter</h3>
+    <h3 data-i18n="popupTitle">__MSG_popupTitle__</h3>
   </div>
   
-  <button id="convertBtn" class="convert-btn">
-    p要素のテキストを変換
-  </button>
+  <button id="convertBtn" class="convert-btn" data-i18n="convertButton">__MSG_convertButton__</button>
   
   <div id="status" class="status" style="display: none;"></div>
   
-  <div class="info">
-    <strong>変換対象:</strong><br>
-    • ˸ (U+02F8) → : (コロン)<br>
-    • ․ (U+2024) → . (ピリオド)<br>
-    • ⁄ (U+2044) → / (スラッシュ)
+  <hr style="margin:20px 0;">
+  <div class="settings">
+    <h4 style="margin-bottom:8px;" data-i18n="targetTagsTitle">__MSG_targetTagsTitle__</h4>
+    <form id="tagsForm" style="display:flex;gap:4px;margin-bottom:8px;">
+      <input id="tagsInput" type="text" data-i18n-placeholder="targetTagsPlaceholder" placeholder="__MSG_targetTagsPlaceholder__" style="flex:1;" required>
+      <button type="submit" data-i18n="saveButton">__MSG_saveButton__</button>
+    </form>
   </div>
   
+  <hr style="margin:20px 0;">
+  <div class="settings">
+    <h4 style="margin-bottom:8px;" data-i18n="customizeTitle">__MSG_customizeTitle__</h4>
+    <form id="addForm" style="display:flex;gap:4px;margin-bottom:8px;">
+      <input id="unicodeInput" type="text" maxlength="1" data-i18n-placeholder="addUnicodePlaceholder" placeholder="__MSG_addUnicodePlaceholder__" style="width:40px;text-align:center;" required>
+      <input id="replaceInput" type="text" maxlength="1" data-i18n-placeholder="addReplacePlaceholder" placeholder="__MSG_addReplacePlaceholder__" style="width:40px;text-align:center;" required>
+      <button type="submit" style="flex:1;" data-i18n="addButton">__MSG_addButton__</button>
+    </form>
+    <ul id="conversionList" style="list-style:none;padding:0;margin:0 0 8px 0;"></ul>
+    <div style="display:flex;gap:4px;">
+      <button id="importBtn" style="flex:1;" data-i18n="importButton">__MSG_importButton__</button>
+      <input type="file" id="importFile" accept=".json" style="display:none;">
+      <button id="exportBtn" style="flex:1;" data-i18n="exportButton">__MSG_exportButton__</button>
+      <button id="resetBtn" style="flex:1;" data-i18n="resetButton">__MSG_resetButton__</button>
+    </div>
+    <div class="info" style="margin-top:0;">
+      例: ˸ (U+02F8) → :<br>․ (U+2024) → .<br>⁄ (U+2044) → /
+    </div>
+  </div>
+  
+  <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
   <script src="popup.js"></script>
+
+  <hr style="margin:20px 0;">
+  <div class="history">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+      <h4 style="margin:0;" data-i18n="historyTitle">__MSG_historyTitle__</h4>
+      <button id="clearHistoryBtn" style="font-size:12px;" data-i18n="clearHistoryButton">__MSG_clearHistoryButton__</button>
+    </div>
+    <ul id="historyList" style="list-style:none;padding:0;margin:0;max-height:150px;overflow-y:auto;"></ul>
+  </div>
 </body>
 </html>
 

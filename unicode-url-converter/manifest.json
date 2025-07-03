@@ -1,8 +1,9 @@
 {
   "manifest_version": 3,
-  "name": "Unicode URL Converter",
+  "name": "__MSG_extName__",
+  "description": "__MSG_extDescription__",
+  "default_locale": "en",
   "version": "1.0",
-  "description": "p要素内の特殊Unicode文字を通常の記号に変換します",
   "permissions": [
     "activeTab",
     "scripting"
