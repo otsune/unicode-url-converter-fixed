@@ -42,15 +42,8 @@ function getMessage(key, substitutions = []) {
     // Chrome i18n形式のプレースホルダーを処理
     if (substitutions.length > 0) {
       substitutions.forEach((sub, index) => {
-        message = message.replace(`${index + 1}`, sub);
-        message = message.replace(`$countimport { getConversionMap, getHistory, setConversionMap, saveHistoryEntry, clearHistory } from './storage.js';
-
-// chrome APIが利用可能かチェック
-function isChromeAPI() {
-  return typeof chrome !== 'undefined' && chrome.i18n;
-}
-
-, sub);
+        message = message.replace(`$${index + 1}`, sub);
+        message = message.replace(`$count$`, sub);
       });
     }
     return message;
@@ -116,9 +109,9 @@ export async function renderConversionList() {
     li.style.alignItems = 'center';
     li.style.marginBottom = '4px';
     li.style.cursor = 'grab';
-    const codePoint = unicode.replace('\u', 'U+');
+    const codePoint = unicode.replace('\\u', 'U+');
     li.innerHTML = `
-      <span style="width:80px;text-align:center;">${String.fromCharCode(parseInt(unicode.replace('\u',''),16))} (${codePoint})</span>
+      <span style="width:80px;text-align:center;">${String.fromCharCode(parseInt(unicode.replace('\\u',''),16))} (${codePoint})</span>
       <span style="width:30px;text-align:center;">→</span>
       <span style="width:30px;text-align:center;">${replace}</span>
       <button class="editBtn" data-key="${unicode}" style="margin-left:8px;">${getMessage('editButton')}</button>
