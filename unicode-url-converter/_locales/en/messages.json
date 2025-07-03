@@ -20,6 +20,8 @@
   "errorFileUrl": { "message": "This extension does not work on file URLs. Please try on an HTTPS website." },
   "errorInjectScript": { "message": "Failed to inject content script. Please reload the page." },
   "errorConnection": { "message": "Could not establish connection to the page. Please reload the page." },
+  "errorCannotAccess": { "message": "Cannot access the contents of this page. Please check your browser settings." },
+  "errorChromePage": { "message": "This extension does not work on Chrome internal pages. Please try on a regular website." },
   "statusSuccess": { "message": "Conversion complete: $count$ characters converted.", "placeholders": { "count": { "content": "$1" } } },
   "statusNoMatch": { "message": "No target characters found." },
   "statusTagsSaved": { "message": "Target tags saved." },

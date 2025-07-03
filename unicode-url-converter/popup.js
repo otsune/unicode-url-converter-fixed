@@ -11,35 +11,78 @@ document.addEventListener('DOMContentLoaded', function() {
   const exportBtn = document.getElementById('exportBtn');
   const clearHistoryBtn = document.getElementById('clearHistoryBtn');
 
+  // Content scriptとの通信を確立する関数
+  async function ensureContentScript(tabId) {
+    const maxRetries = 3;
+    let lastError = null;
+    
+    for (let attempt = 1; attempt <= maxRetries; attempt++) {
+      try {
+        console.log(`Content script connection attempt ${attempt}/${maxRetries}`);
+        
+        // まずpingで接続確認
+        await chrome.tabs.sendMessage(tabId, { action: 'ping' });
+        console.log('Content script is ready');
+        return true;
+        
+      } catch (error) {
+        lastError = error;
+        console.log(`Ping failed on attempt ${attempt}:`, error.message);
+        
+        if (attempt < maxRetries) {
+          try {
+            // Content scriptを注入
+            console.log('Injecting content script...');
+            await chrome.scripting.executeScript({
+              target: { tabId: tabId },
+              files: ['content.js']
+            });
+            
+            // 注入後の待機時間を段階的に増加
+            const waitTime = attempt * 200;
+            console.log(`Waiting ${waitTime}ms for content script to initialize...`);
+            await new Promise(resolve => setTimeout(resolve, waitTime));
+            
+          } catch (injectError) {
+            console.error('Failed to inject content script:', injectError);
+            lastError = injectError;
+          }
+        }
+      }
+    }
+    
+    throw lastError;
+  }
+
   convertBtn.addEventListener('click', async function() {
     try {
+      console.log('Convert button clicked');
+      
       const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+      console.log('Active tab:', tab.url);
       
       if (tab.url.startsWith('file://')) {
         showStatus(false, chrome.i18n.getMessage('errorFileUrl'));
         return;
       }
       
-      try {
-        await chrome.tabs.sendMessage(tab.id, { action: 'ping' });
-      } catch (pingError) {
-        try {
-          await chrome.scripting.executeScript({
-            target: { tabId: tab.id },
-            files: ['content.js']
-          });
-          await new Promise(resolve => setTimeout(resolve, 100));
-        } catch (injectError) {
-          showStatus(false, chrome.i18n.getMessage('errorInjectScript'));
-          return;
-        }
+      // Chrome拡張機能のページや特殊ページの場合は処理をスキップ
+      if (tab.url.startsWith('chrome://') || tab.url.startsWith('chrome-extension://') || tab.url.startsWith('moz-extension://')) {
+        showStatus(false, chrome.i18n.getMessage('errorChromePage'));
+        return;
       }
       
+      // Content scriptとの通信を確立
+      await ensureContentScript(tab.id);
+      
       const tags = await getTargetTags();
+      console.log('Target tags:', tags);
+      
       const response = await chrome.tabs.sendMessage(tab.id, { action: 'convertText', tags: tags });
+      console.log('Conversion response:', response);
       
       showStatus(response.success, response.message, response.count);
-      console.log('Conversion response:', response);
+      
       if (response.success && response.count > 0) {
         const historyEntry = {
           url: tab.url,
@@ -55,9 +98,15 @@ document.addEventListener('DOMContentLoaded', function() {
       }
       
     } catch (error) {
-      console.error('Error:', error);
+      console.error('Conversion error:', error);
+      
+      // エラーメッセージに基づいて適切なメッセージを表示
       if (error.message.includes('Could not establish connection')) {
         showStatus(false, chrome.i18n.getMessage('errorConnection'));
+      } else if (error.message.includes('Cannot access contents of url')) {
+        showStatus(false, chrome.i18n.getMessage('errorCannotAccess'));
+      } else if (error.message.includes('chrome-extension://')) {
+        showStatus(false, chrome.i18n.getMessage('errorChromePage'));
       } else {
         showStatus(false, chrome.i18n.getMessage('errorGeneric', [error.message]));
       }

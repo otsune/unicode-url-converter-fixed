@@ -20,6 +20,8 @@
   "errorFileUrl": { "message": "ファイルURLでは動作しません。HTTPSサイトでお試しください。" },
   "errorInjectScript": { "message": "コンテンツスクリプトの注入に失敗しました。ページを再読み込みしてください。" },
   "errorConnection": { "message": "ページとの接続に失敗しました。ページを再読み込みしてください。" },
+  "errorCannotAccess": { "message": "このページの内容にアクセスできません。ブラウザの設定を確認してください。" },
+  "errorChromePage": { "message": "Chromeの内部ページでは動作しません。通常のウェブサイトでお試しください。" },
   "statusSuccess": { "message": "変換完了: $count$個の文字を変換しました", "placeholders": { "count": { "content": "$1" } } },
   "statusNoMatch": { "message": "変換対象の文字が見つかりませんでした" },
   "statusTagsSaved": { "message": "変換対象タグを保存しました" },
