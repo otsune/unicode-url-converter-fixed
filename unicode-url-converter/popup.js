@@ -1,4 +1,4 @@
-import { getConversionMap, getTargetTags, setTargetTags, setConversionMap, removeSettings } from './storage.js';
+import { getConversionMap, getTargetTags, setTargetTags, setConversionMap, removeSettings, saveHistoryEntry } from './storage.js';
 import { localizeHtml, showStatus, renderConversionList, renderHistory, initSortableList, handleAddFormSubmit, handleConversionListClick, handleClearHistoryClick } from './ui.js';
 
 document.addEventListener('DOMContentLoaded', function() {
@@ -45,7 +45,8 @@ document.addEventListener('DOMContentLoaded', function() {
           count: response.count,
           date: new Date().toISOString()
         };
-        // saveHistoryEntry(historyEntry); // ui.jsでrenderHistoryを呼ぶため、ここでは呼ばない
+        await saveHistoryEntry(historyEntry);
+        renderHistory();
       }
       
     } catch (error) {

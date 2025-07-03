@@ -105,7 +105,7 @@ export async function renderHistory() {
     li.style.marginBottom = '4px';
     li.innerHTML = `
       <div title="${entry.url}" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${new URL(entry.url).hostname}</div>
-      <div style="color:#666;">${getMessage('historyEntry', [entry.count])} - ${new Date(entry.date).toLocaleString()}</div>
+      <div style="color:#666;">${getMessage('historyEntry', [entry.count.toString()])} - ${new Date(entry.date).toLocaleString()}</div>
     `;
     historyList.appendChild(li);
   });
