@@ -92,13 +92,17 @@ export async function renderConversionList() {
 }
 
 export async function renderHistory() {
+  console.log('renderHistory called');
   const history = await getHistory();
+  console.log('History to render:', history);
   const historyList = document.getElementById('historyList');
   historyList.innerHTML = '';
   if (history.length === 0) {
+    console.log('No history to display');
     historyList.innerHTML = `<li>${getMessage('historyEmpty')}</li>`;
     return;
   }
+  console.log('Rendering', history.length, 'history entries');
   history.forEach(entry => {
     const li = document.createElement('li');
     li.style.fontSize = '12px';

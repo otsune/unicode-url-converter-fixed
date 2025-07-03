@@ -39,14 +39,19 @@ document.addEventListener('DOMContentLoaded', function() {
       const response = await chrome.tabs.sendMessage(tab.id, { action: 'convertText', tags: tags });
       
       showStatus(response.success, response.message, response.count);
+      console.log('Conversion response:', response);
       if (response.success && response.count > 0) {
         const historyEntry = {
           url: tab.url,
           count: response.count,
           date: new Date().toISOString()
         };
+        console.log('Saving history entry:', historyEntry);
         await saveHistoryEntry(historyEntry);
+        console.log('History saved, rendering...');
         renderHistory();
+      } else {
+        console.log('Not saving history - success:', response.success, 'count:', response.count);
       }
       
     } catch (error) {
