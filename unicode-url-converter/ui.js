@@ -20,18 +20,24 @@ function getMessage(key, substitutions = []) {
       'deleteButton': 'Delete',
       'historyTitle': 'Conversion History',
       'clearHistoryButton': 'Clear History',
-      'statusSuccess': 'Conversion complete: $1 characters converted.',
+      'statusSuccess': 'Conversion complete: $count$ characters converted.',
       'statusNoMatch': 'No target characters found.',
       'historyEmpty': 'No history yet.',
-      'historyEntry': 'Converted $1 characters',
+      'historyEntry': 'Converted $count$ characters',
       'alertDuplicateUnicode': 'This Unicode character has already been added.',
       'alertInvalidChar': 'Please enter a single character for the replacement.',
-      'statusHistoryCleared': 'History cleared.'
+      'statusHistoryCleared': 'History cleared.',
+      'example_info': 'Example:',
+      'example_list': '˸ (U+02F8) → :<br>․ (U+2024) → .<br>⁄ (U+2044) → /'
     };
     let message = defaultMessages[key] || key;
-    substitutions.forEach((sub, index) => {
-      message = message.replace(`$${index + 1}`, sub);
-    });
+    // Chrome i18n形式のプレースホルダーを処理
+    if (substitutions.length > 0) {
+      substitutions.forEach((sub, index) => {
+        message = message.replace(`$${index + 1}`, sub);
+        message = message.replace(`$count$`, sub);
+      });
+    }
     return message;
   }
   return chrome.i18n.getMessage(key, substitutions);
@@ -50,7 +56,7 @@ export function showStatus(success, message, count = 0) {
   statusDiv.className = 'status ' + (success ? 'success' : 'error');
   
   if (success && count > 0) {
-    statusDiv.textContent = getMessage('statusSuccess', [count]);
+    statusDiv.textContent = getMessage('statusSuccess', [count.toString()]);
   } else if (success && count === 0) {
     statusDiv.textContent = getMessage('statusNoMatch');
   } else {
