@@ -1,35 +1,4 @@
-// Unicode文字から通常の記号への変換マップ
-const CONVERSION_MAP = {
-  '\u02F8': ':',  // U+02F8 MODIFIER LETTER RAISED COLON → コロン
-  '\u2024': '.',  // U+2024 ONE DOT LEADER → ピリオド
-  '\u2044': '/'   // U+2044 FRACTION SLASH → スラッシュ
-};
-
-// 変換対象の文字を正規表現で検索するためのパターン
-const UNICODE_PATTERN = /[\u02F8\u2024\u2044]/g;
-
-// chrome.storageから変換マップを取得するPromise
-function getConversionMap() {
-  return new Promise(resolve => {
-    chrome.storage.local.get(['conversionMap'], result => {
-      if (result.conversionMap) {
-        resolve(result.conversionMap);
-      } else {
-        resolve({
-          '\u02F8': ':',
-          '\u2024': '.',
-          '\u2044': '/'
-        });
-      }
-    });
-  });
-}
-
-// 変換対象の文字を正規表現で検索するためのパターンを生成
-function createUnicodePattern(map) {
-  const keys = Object.keys(map).map(k => String.fromCharCode(parseInt(k.replace('\\u',''),16)));
-  return new RegExp('[' + keys.join('') + ']', 'g');
-}
+import { getConversionMap, createUnicodePattern, processTextNodes } from './utils.js';
 
 /**
  * 指定されたセレクタに一致する要素内のテキストを変換する関数（非同期）
@@ -73,40 +42,6 @@ async function convertTextAsync(selector = 'p') {
       count: 0
     };
   }
-}
-
-/**
- * 指定された要素内のテキストノードを再帰的に処理して文字を変換
- * @param {Element} element 処理対象の要素
- * @param {Object} map 変換マップ
- * @param {RegExp} pattern 正規表現
- * @returns {number} 変換された文字数
- */
-function processTextNodes(element, map, pattern) {
-  let conversions = 0;
-  const walker = document.createTreeWalker(
-    element,
-    NodeFilter.SHOW_TEXT,
-    null,
-    false
-  );
-  const textNodes = [];
-  let node;
-  while (node = walker.nextNode()) {
-    textNodes.push(node);
-  }
-  textNodes.forEach(textNode => {
-    const originalText = textNode.textContent;
-    const convertedText = originalText.replace(pattern, (match) => {
-      const key = '\\u' + match.charCodeAt(0).toString(16).toUpperCase().padStart(4,'0');
-      conversions++;
-      return map[key] || match;
-    });
-    if (originalText !== convertedText) {
-      textNode.textContent = convertedText;
-    }
-  });
-  return conversions;
 }
 
 // ポップアップからのメッセージを受信

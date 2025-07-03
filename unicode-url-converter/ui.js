@@ -1,0 +1,133 @@
+import { getConversionMap, getHistory, setConversionMap, saveHistoryEntry, clearHistory } from './storage.js';
+
+export function localizeHtml() {
+  document.querySelectorAll('[data-i18n]').forEach(elem => {
+    const msg = chrome.i18n.getMessage(elem.dataset.i18n);
+    if (msg) elem.innerText = msg;
+  });
+  document.querySelectorAll('[data-i18n-placeholder]').forEach(elem => {
+    const msg = chrome.i18n.getMessage(elem.dataset.i18nPlaceholder);
+    if (msg) elem.placeholder = msg;
+  });
+}
+
+export function showStatus(success, message, count = 0) {
+  const statusDiv = document.getElementById('status');
+  statusDiv.style.display = 'block';
+  statusDiv.className = 'status ' + (success ? 'success' : 'error');
+  
+  if (success && count > 0) {
+    statusDiv.textContent = chrome.i18n.getMessage('statusSuccess', [count]);
+  } else if (success && count === 0) {
+    statusDiv.textContent = chrome.i18n.getMessage('statusNoMatch');
+  } else {
+    statusDiv.textContent = message;
+  }
+  
+  setTimeout(() => {
+    statusDiv.style.display = 'none';
+  }, 3000);
+}
+
+export async function renderConversionList() {
+  const map = await getConversionMap();
+  const list = document.getElementById('conversionList');
+  list.innerHTML = '';
+  Object.entries(map).forEach(([unicode, replace]) => {
+    const li = document.createElement('li');
+    li.dataset.key = unicode;
+    li.style.display = 'flex';
+    li.style.alignItems = 'center';
+    li.style.marginBottom = '4px';
+    li.style.cursor = 'grab';
+    const codePoint = unicode.replace('\\u', 'U+');
+    li.innerHTML = `
+      <span style="width:80px;text-align:center;">${String.fromCharCode(parseInt(unicode.replace('\\u',''),16))} (${codePoint})</span>
+      <span style="width:30px;text-align:center;">→</span>
+      <span style="width:30px;text-align:center;">${replace}</span>
+      <button class="editBtn" data-key="${unicode}" style="margin-left:8px;">${chrome.i18n.getMessage('editButton')}</button>
+      <button class="deleteBtn" data-key="${unicode}" style="margin-left:4px;">${chrome.i18n.getMessage('deleteButton')}</button>
+    `;
+    list.appendChild(li);
+  });
+}
+
+export async function renderHistory() {
+  const history = await getHistory();
+  const historyList = document.getElementById('historyList');
+  historyList.innerHTML = '';
+  if (history.length === 0) {
+    historyList.innerHTML = `<li>${chrome.i18n.getMessage('historyEmpty')}</li>`;
+    return;
+  }
+  history.forEach(entry => {
+    const li = document.createElement('li');
+    li.style.fontSize = '12px';
+    li.style.marginBottom = '4px';
+    li.innerHTML = `
+      <div title="${entry.url}" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${new URL(entry.url).hostname}</div>
+      <div style="color:#666;">${chrome.i18n.getMessage('historyEntry', [entry.count])} - ${new Date(entry.date).toLocaleString()}</div>
+    `;
+    historyList.appendChild(li);
+  });
+}
+
+export function initSortableList(sortableList) {
+  new Sortable(sortableList, {
+    animation: 150,
+    onEnd: async function (evt) {
+      const newOrder = Array.from(evt.target.children).map(item => item.dataset.key);
+      let map = await getConversionMap();
+      const newMap = {};
+      newOrder.forEach(key => {
+        newMap[key] = map[key];
+      });
+      setConversionMap(newMap);
+    }
+  });
+}
+
+export async function handleAddFormSubmit(e) {
+  e.preventDefault();
+  const unicodeChar = document.getElementById('unicodeInput').value.trim();
+  const replaceChar = document.getElementById('replaceInput').value.trim();
+  if (!unicodeChar || !replaceChar) return;
+  const unicodeKey = '\\u' + unicodeChar.charCodeAt(0).toString(16).toUpperCase().padStart(4,'0');
+  let map = await getConversionMap();
+  if (map.hasOwnProperty(unicodeKey)) {
+    alert(chrome.i18n.getMessage('alertDuplicateUnicode'));
+    return;
+  }
+  map[unicodeKey] = replaceChar;
+  setConversionMap(map);
+  document.getElementById('addForm').reset();
+  renderConversionList();
+}
+
+export async function handleConversionListClick(e) {
+  if (e.target.classList.contains('deleteBtn')) {
+    const key = e.target.dataset.key;
+    let map = await getConversionMap();
+    delete map[key];
+    setConversionMap(map);
+    renderConversionList();
+  } else if (e.target.classList.contains('editBtn')) {
+    const key = e.target.dataset.key;
+    let map = await getConversionMap();
+    const newChar = prompt(chrome.i18n.getMessage('editButton'), map[key]);
+    if (newChar === null) return; // キャンセルされた場合は何もしない
+    if (newChar.length !== 1) {
+      alert(chrome.i18n.getMessage('alertInvalidChar'));
+      return;
+    }
+    map[key] = newChar;
+    setConversionMap(map);
+    renderConversionList();
+  }
+}
+
+export function handleClearHistoryClick() {
+  clearHistory();
+  renderHistory();
+  showStatus(true, chrome.i18n.getMessage('statusHistoryCleared'));
+}

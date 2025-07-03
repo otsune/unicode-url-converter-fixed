@@ -1,0 +1,23 @@
+{
+  "name": "unicode-url-converter",
+  "version": "1.0.0",
+  "description": "Chrome extension to convert special Unicode characters in URLs.",
+  "main": "popup.js",
+  "scripts": {
+    "test": "jest"
+  },
+  "keywords": [
+    "chrome-extension",
+    "unicode",
+    "url",
+    "converter"
+  ],
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "jest": "^29.0.0"
+  },
+  "dependencies": {
+    "jsdom": "^26.1.0"
+  }
+}
