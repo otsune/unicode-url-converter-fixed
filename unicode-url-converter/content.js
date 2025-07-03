@@ -13,7 +13,7 @@ async function convertTextAsync(selector = 'p') {
     if (elements.length === 0) {
       return {
         success: true,
-        message: `セレクタ「${selector}」に一致する要素が見つかりませんでした。`,
+        message: chrome.i18n.getMessage('contentNoElements', [selector]),
         count: 0
       };
     }
@@ -24,21 +24,21 @@ async function convertTextAsync(selector = 'p') {
     });
     return {
       success: true,
-      message: '変換が完了しました',
+      message: chrome.i18n.getMessage('contentConversionComplete'),
       count: totalConversions
     };
   } catch (error) {
-    console.error('変換エラー:', error);
+    console.error(chrome.i18n.getMessage('consoleConversionError'), error);
     if (error instanceof DOMException && error.name === 'SyntaxError') {
         return {
             success: false,
-            message: `無効なセレクタです: ${selector}`,
+            message: chrome.i18n.getMessage('contentInvalidSelector', [selector]),
             count: 0
         };
     }
     return {
       success: false,
-      message: '変換中にエラーが発生しました: ' + error.message,
+      message: chrome.i18n.getMessage('contentConversionError', [error.message]),
       count: 0
     };
   }
@@ -57,5 +57,5 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 });
 
 // ページ読み込み完了時にコンソールにメッセージを出力（デバッグ用）
-console.log('Unicode URL Converter: コンテンツスクリプトが読み込まれました');
+console.log(chrome.i18n.getMessage('contentScriptLoaded'));
 

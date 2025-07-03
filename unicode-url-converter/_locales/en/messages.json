@@ -32,5 +32,11 @@
   "confirmReset": { "message": "Are you sure you want to reset all settings (conversion list, target tags)?\nThis action cannot be undone." },
   "historyEmpty": { "message": "No history yet." },
   "historyEntry": { "message": "Converted $count$ characters", "placeholders": { "count": { "content": "$1" } } },
-  "errorGeneric": { "message": "An error occurred: $error$", "placeholders": { "error": { "content": "$1" } } }
+  "errorGeneric": { "message": "An error occurred: $error$", "placeholders": { "error": { "content": "$1" } } },
+  "contentNoElements": { "message": "No elements found matching selector \"$selector$\".", "placeholders": { "selector": { "content": "$1" } } },
+  "contentConversionComplete": { "message": "Conversion completed." },
+  "contentInvalidSelector": { "message": "Invalid selector: $selector$", "placeholders": { "selector": { "content": "$1" } } },
+  "contentConversionError": { "message": "An error occurred during conversion: $error$", "placeholders": { "error": { "content": "$1" } } },
+  "contentScriptLoaded": { "message": "Unicode URL Converter: Content script loaded" },
+  "consoleConversionError": { "message": "Conversion error:" }
 }

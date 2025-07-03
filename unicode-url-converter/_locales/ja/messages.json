@@ -32,5 +32,11 @@
   "confirmReset": { "message": "すべての設定（変換リスト、対象タグ）をリセットしますか？\nこの操作は元に戻せません。" },
   "historyEmpty": { "message": "履歴はありません" },
   "historyEntry": { "message": "$count$個の文字を変換", "placeholders": { "count": { "content": "$1" } } },
-  "errorGeneric": { "message": "エラーが発生しました: $error$", "placeholders": { "error": { "content": "$1" } } }
+  "errorGeneric": { "message": "エラーが発生しました: $error$", "placeholders": { "error": { "content": "$1" } } },
+  "contentNoElements": { "message": "セレクタ「$selector$」に一致する要素が見つかりませんでした。", "placeholders": { "selector": { "content": "$1" } } },
+  "contentConversionComplete": { "message": "変換が完了しました" },
+  "contentInvalidSelector": { "message": "無効なセレクタです: $selector$", "placeholders": { "selector": { "content": "$1" } } },
+  "contentConversionError": { "message": "変換中にエラーが発生しました: $error$", "placeholders": { "error": { "content": "$1" } } },
+  "contentScriptLoaded": { "message": "Unicode URL Converter: コンテンツスクリプトが読み込まれました" },
+  "consoleConversionError": { "message": "変換エラー:" }
 }
