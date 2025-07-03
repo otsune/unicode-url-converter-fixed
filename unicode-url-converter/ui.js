@@ -1,12 +1,49 @@
 import { getConversionMap, getHistory, setConversionMap, saveHistoryEntry, clearHistory } from './storage.js';
 
+// chrome APIが利用可能かチェック
+function isChromeAPI() {
+  return typeof chrome !== 'undefined' && chrome.i18n;
+}
+
+// i18nメッセージを安全に取得
+function getMessage(key, substitutions = []) {
+  if (!isChromeAPI()) {
+    // デフォルトメッセージ（英語）
+    const defaultMessages = {
+      'popup_title': 'Unicode URL Converter',
+      'convert_btn': 'Convert Text',
+      'settings_title': 'Customize Conversion Characters',
+      'add_btn': 'Add',
+      'export_btn': 'Export',
+      'import_btn': 'Import',
+      'editButton': 'Edit',
+      'deleteButton': 'Delete',
+      'historyTitle': 'Conversion History',
+      'clearHistoryButton': 'Clear History',
+      'statusSuccess': 'Conversion complete: $1 characters converted.',
+      'statusNoMatch': 'No target characters found.',
+      'historyEmpty': 'No history yet.',
+      'historyEntry': 'Converted $1 characters',
+      'alertDuplicateUnicode': 'This Unicode character has already been added.',
+      'alertInvalidChar': 'Please enter a single character for the replacement.',
+      'statusHistoryCleared': 'History cleared.'
+    };
+    let message = defaultMessages[key] || key;
+    substitutions.forEach((sub, index) => {
+      message = message.replace(`$${index + 1}`, sub);
+    });
+    return message;
+  }
+  return chrome.i18n.getMessage(key, substitutions);
+}
+
 export function localizeHtml() {
   document.querySelectorAll('[data-i18n]').forEach(elem => {
-    const msg = chrome.i18n.getMessage(elem.dataset.i18n);
+    const msg = getMessage(elem.dataset.i18n);
     if (msg) elem.innerText = msg;
   });
   document.querySelectorAll('[data-i18n-placeholder]').forEach(elem => {
-    const msg = chrome.i18n.getMessage(elem.dataset.i18nPlaceholder);
+    const msg = getMessage(elem.dataset.i18nPlaceholder);
     if (msg) elem.placeholder = msg;
   });
 }
@@ -17,9 +54,9 @@ export function showStatus(success, message, count = 0) {
   statusDiv.className = 'status ' + (success ? 'success' : 'error');
   
   if (success && count > 0) {
-    statusDiv.textContent = chrome.i18n.getMessage('statusSuccess', [count]);
+    statusDiv.textContent = getMessage('statusSuccess', [count]);
   } else if (success && count === 0) {
-    statusDiv.textContent = chrome.i18n.getMessage('statusNoMatch');
+    statusDiv.textContent = getMessage('statusNoMatch');
   } else {
     statusDiv.textContent = message;
   }
@@ -45,8 +82,8 @@ export async function renderConversionList() {
       <span style="width:80px;text-align:center;">${String.fromCharCode(parseInt(unicode.replace('\\u',''),16))} (${codePoint})</span>
       <span style="width:30px;text-align:center;">→</span>
       <span style="width:30px;text-align:center;">${replace}</span>
-      <button class="editBtn" data-key="${unicode}" style="margin-left:8px;">${chrome.i18n.getMessage('editButton')}</button>
-      <button class="deleteBtn" data-key="${unicode}" style="margin-left:4px;">${chrome.i18n.getMessage('deleteButton')}</button>
+      <button class="editBtn" data-key="${unicode}" style="margin-left:8px;">${getMessage('editButton')}</button>
+      <button class="deleteBtn" data-key="${unicode}" style="margin-left:4px;">${getMessage('deleteButton')}</button>
     `;
     list.appendChild(li);
   });
@@ -57,7 +94,7 @@ export async function renderHistory() {
   const historyList = document.getElementById('historyList');
   historyList.innerHTML = '';
   if (history.length === 0) {
-    historyList.innerHTML = `<li>${chrome.i18n.getMessage('historyEmpty')}</li>`;
+    historyList.innerHTML = `<li>${getMessage('historyEmpty')}</li>`;
     return;
   }
   history.forEach(entry => {
@@ -66,13 +103,17 @@ export async function renderHistory() {
     li.style.marginBottom = '4px';
     li.innerHTML = `
       <div title="${entry.url}" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${new URL(entry.url).hostname}</div>
-      <div style="color:#666;">${chrome.i18n.getMessage('historyEntry', [entry.count])} - ${new Date(entry.date).toLocaleString()}</div>
+      <div style="color:#666;">${getMessage('historyEntry', [entry.count])} - ${new Date(entry.date).toLocaleString()}</div>
     `;
     historyList.appendChild(li);
   });
 }
 
 export function initSortableList(sortableList) {
+  if (typeof Sortable === 'undefined') {
+    console.warn('Sortable library not available');
+    return;
+  }
   new Sortable(sortableList, {
     animation: 150,
     onEnd: async function (evt) {
@@ -95,7 +136,7 @@ export async function handleAddFormSubmit(e) {
   const unicodeKey = '\\u' + unicodeChar.charCodeAt(0).toString(16).toUpperCase().padStart(4,'0');
   let map = await getConversionMap();
   if (map.hasOwnProperty(unicodeKey)) {
-    alert(chrome.i18n.getMessage('alertDuplicateUnicode'));
+    alert(getMessage('alertDuplicateUnicode'));
     return;
   }
   map[unicodeKey] = replaceChar;
@@ -114,10 +155,10 @@ export async function handleConversionListClick(e) {
   } else if (e.target.classList.contains('editBtn')) {
     const key = e.target.dataset.key;
     let map = await getConversionMap();
-    const newChar = prompt(chrome.i18n.getMessage('editButton'), map[key]);
+    const newChar = prompt(getMessage('editButton'), map[key]);
     if (newChar === null) return; // キャンセルされた場合は何もしない
     if (newChar.length !== 1) {
-      alert(chrome.i18n.getMessage('alertInvalidChar'));
+      alert(getMessage('alertInvalidChar'));
       return;
     }
     map[key] = newChar;
@@ -129,5 +170,5 @@ export async function handleConversionListClick(e) {
 export function handleClearHistoryClick() {
   clearHistory();
   renderHistory();
-  showStatus(true, chrome.i18n.getMessage('statusHistoryCleared'));
+  showStatus(true, getMessage('statusHistoryCleared'));
 }
