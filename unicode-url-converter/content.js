@@ -1,4 +1,59 @@
-import { getConversionMap, createUnicodePattern, processTextNodes } from './utils.js';
+// デフォルトの変換マップ
+const DEFAULT_MAP = {
+  '\u02F8': ':',
+  '\u2024': '.',
+  '\u2044': '/'
+};
+
+// chrome APIが利用可能かチェック
+function isChromeAPI() {
+  return typeof chrome !== 'undefined' && chrome.storage && chrome.storage.local;
+}
+
+// 変換マップを取得する関数
+async function getConversionMap() {
+  if (!isChromeAPI()) {
+    return DEFAULT_MAP;
+  }
+  return new Promise(resolve => {
+    chrome.storage.local.get(['conversionMap'], result => {
+      resolve(result.conversionMap || DEFAULT_MAP);
+    });
+  });
+}
+
+// Unicodeパターンを作成する関数
+function createUnicodePattern(map) {
+  const keys = Object.keys(map);
+  return new RegExp('[' + keys.join('') + ']', 'g');
+}
+
+// テキストノードを処理する関数
+function processTextNodes(element, map, pattern) {
+  let conversions = 0;
+  const walker = document.createTreeWalker(
+    element,
+    NodeFilter.SHOW_TEXT,
+    null,
+    false
+  );
+  const textNodes = [];
+  let node;
+  while (node = walker.nextNode()) {
+    textNodes.push(node);
+  }
+  textNodes.forEach(textNode => {
+    const originalText = textNode.textContent;
+    const convertedText = originalText.replace(pattern, (match) => {
+      conversions++;
+      return map[match] || match;
+    });
+    if (originalText !== convertedText) {
+      textNode.textContent = convertedText;
+    }
+  });
+  return conversions;
+}
 
 /**
  * 指定されたセレクタに一致する要素内のテキストを変換する関数（非同期）
