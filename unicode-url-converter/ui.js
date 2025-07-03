@@ -42,10 +42,6 @@ export function localizeHtml() {
     const msg = getMessage(elem.dataset.i18n);
     if (msg) elem.innerText = msg;
   });
-  document.querySelectorAll('[data-i18n-placeholder]').forEach(elem => {
-    const msg = getMessage(elem.dataset.i18nPlaceholder);
-    if (msg) elem.placeholder = msg;
-  });
 }
 
 export function showStatus(success, message, count = 0) {

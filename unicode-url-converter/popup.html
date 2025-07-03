@@ -75,14 +75,14 @@
   <div class="settings">
     <h4 style="margin-bottom:8px;" data-i18n="settings_title">変換対象文字のカスタマイズ</h4>
     <form id="addForm" style="display:flex;gap:4px;margin-bottom:8px;">
-      <input id="unicodeInput" type="text" maxlength="1" placeholder="例: ˸" style="width:40px;text-align:center;" required data-i18n-placeholder="unicode_input_placeholder">
-      <input id="replaceInput" type="text" maxlength="1" placeholder=":" style="width:40px;text-align:center;" required data-i18n-placeholder="replace_input_placeholder">
+      <input id="unicodeInput" type="text" maxlength="1" data-i18n-placeholder="unicode_input_placeholder" placeholder="例: ˸" style="width:40px;text-align:center;" required>
+      <input id="replaceInput" type="text" maxlength="1" data-i18n-placeholder="replace_input_placeholder" placeholder=":" style="width:40px;text-align:center;" required>
       <button type="submit" style="flex:1;" data-i18n="add_btn">追加</button>
     </form>
     <ul id="conversionList" style="list-style:none;padding:0;margin:0 0 8px 0;"></ul>
-    <div class="info" style="margin-top:0;" data-i18n="example_info">
-      例:<br>
-      <div class="example-list">
+    <div class="info" style="margin-top:0;">
+      <span data-i18n="example_info">例:</span><br>
+      <div class="example-list" data-i18n="example_list">
         ˸ (U+02F8) → :<br>․ (U+2024) → .<br>⁄ (U+2044) → /
       </div>
     </div>

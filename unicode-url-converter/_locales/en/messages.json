@@ -39,5 +39,6 @@
   "contentConversionError": { "message": "An error occurred during conversion: $error$", "placeholders": { "error": { "content": "$1" } } },
   "contentScriptLoaded": { "message": "Unicode URL Converter: Content script loaded" },
   "consoleConversionError": { "message": "Conversion error:" },
-  "example_info": { "message": "Example:" }
+  "example_info": { "message": "Example:" },
+  "example_list": { "message": "˸ (U+02F8) → :<br>․ (U+2024) → .<br>⁄ (U+2044) → /" }
 }

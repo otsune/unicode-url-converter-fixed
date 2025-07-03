@@ -39,5 +39,6 @@
   "contentConversionError": { "message": "変換中にエラーが発生しました: $error$", "placeholders": { "error": { "content": "$1" } } },
   "contentScriptLoaded": { "message": "Unicode URL Converter: コンテンツスクリプトが読み込まれました" },
   "consoleConversionError": { "message": "変換エラー:" },
-  "example_info": { "message": "例:" }
+  "example_info": { "message": "例:" },
+  "example_list": { "message": "˸ (U+02F8) → :<br>․ (U+2024) → .<br>⁄ (U+2044) → /" }
 }
