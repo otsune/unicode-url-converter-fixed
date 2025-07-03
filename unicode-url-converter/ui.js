@@ -10,16 +10,18 @@ function getMessage(key, substitutions = []) {
   if (!isChromeAPI()) {
     // デフォルトメッセージ（英語）
     const defaultMessages = {
-      'popup_title': 'Unicode URL Converter',
-      'convert_btn': 'Convert Text',
-      'settings_title': 'Customize Conversion Characters',
-      'add_btn': 'Add',
-      'export_btn': 'Export',
-      'import_btn': 'Import',
+      'popupTitle': 'Unicode URL Converter',
+      'convertButton': 'Convert Text',
+      'customizeTitle': 'Customize Conversion Characters',
+      'addButton': 'Add',
+      'exportButton': 'Export',
+      'importButton': 'Import',
       'editButton': 'Edit',
       'deleteButton': 'Delete',
       'historyTitle': 'Conversion History',
       'clearHistoryButton': 'Clear History',
+      'addUnicodePlaceholder': 'e.g., ˸',
+      'addReplacePlaceholder': ':',
       'statusSuccess': 'Conversion complete: $count$ characters converted.',
       'statusNoMatch': 'No target characters found.',
       'historyEmpty': 'No history yet.',
@@ -44,9 +46,16 @@ function getMessage(key, substitutions = []) {
 }
 
 export function localizeHtml() {
+  // data-i18n属性を持つ要素を処理
   document.querySelectorAll('[data-i18n]').forEach(elem => {
     const msg = getMessage(elem.dataset.i18n);
     if (msg) elem.innerHTML = msg;
+  });
+  
+  // data-i18n-placeholder属性を持つ要素を処理
+  document.querySelectorAll('[data-i18n-placeholder]').forEach(elem => {
+    const msg = getMessage(elem.dataset.i18nPlaceholder);
+    if (msg) elem.placeholder = msg;
   });
 }
 

@@ -62,22 +62,22 @@
 </head>
 <body>
   <div class="header">
-    <h3 data-i18n="popup_title">Unicode URL Converter</h3>
+    <h3 data-i18n="popupTitle">Unicode URL Converter</h3>
   </div>
   
-  <button id="convertBtn" class="convert-btn" data-i18n="convert_btn">
-    p要素のテキストを変換
+  <button id="convertBtn" class="convert-btn" data-i18n="convertButton">
+    テキストを変換
   </button>
   
   <div id="status" class="status" style="display: none;"></div>
   
   <hr style="margin:20px 0;">
   <div class="settings">
-    <h4 style="margin-bottom:8px;" data-i18n="settings_title">変換対象文字のカスタマイズ</h4>
+    <h4 style="margin-bottom:8px;" data-i18n="customizeTitle">変換対象文字のカスタマイズ</h4>
     <form id="addForm" style="display:flex;gap:4px;margin-bottom:8px;">
-      <input id="unicodeInput" type="text" maxlength="1" data-i18n-placeholder="unicode_input_placeholder" placeholder="例: ˸" style="width:40px;text-align:center;" required>
-      <input id="replaceInput" type="text" maxlength="1" data-i18n-placeholder="replace_input_placeholder" placeholder=":" style="width:40px;text-align:center;" required>
-      <button type="submit" style="flex:1;" data-i18n="add_btn">追加</button>
+      <input id="unicodeInput" type="text" maxlength="1" data-i18n-placeholder="addUnicodePlaceholder" placeholder="例: ˸" style="width:40px;text-align:center;" required>
+      <input id="replaceInput" type="text" maxlength="1" data-i18n-placeholder="addReplacePlaceholder" placeholder=":" style="width:40px;text-align:center;" required>
+      <button type="submit" style="flex:1;" data-i18n="addButton">追加</button>
     </form>
     <ul id="conversionList" style="list-style:none;padding:0;margin:0 0 8px 0;"></ul>
     <div class="info" style="margin-top:0;">
@@ -87,8 +87,8 @@
       </div>
     </div>
     <div style="margin-top:12px;display:flex;gap:8px;">
-      <button id="exportBtn" style="flex:1;" data-i18n="export_btn">エクスポート</button>
-      <label for="importInput" style="flex:1;display:inline-block;background:#eee;padding:6px 0;text-align:center;border-radius:4px;cursor:pointer;" data-i18n="import_btn">インポート
+      <button id="exportBtn" style="flex:1;" data-i18n="exportButton">エクスポート</button>
+      <label for="importInput" style="flex:1;display:inline-block;background:#eee;padding:6px 0;text-align:center;border-radius:4px;cursor:pointer;" data-i18n="importButton">インポート
         <input id="importInput" type="file" accept="application/json" style="display:none;">
       </label>
     </div>
