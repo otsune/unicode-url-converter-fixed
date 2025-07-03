@@ -31,5 +31,6 @@
   "alertInvalidChar": { "message": "Please enter a single character for the replacement." },
   "confirmReset": { "message": "Are you sure you want to reset all settings (conversion list, target tags)?\nThis action cannot be undone." },
   "historyEmpty": { "message": "No history yet." },
-  "historyEntry": { "message": "Converted $count$ characters", "placeholders": { "count": { "content": "$1" } } }
+  "historyEntry": { "message": "Converted $count$ characters", "placeholders": { "count": { "content": "$1" } } },
+  "errorGeneric": { "message": "An error occurred: $error$", "placeholders": { "error": { "content": "$1" } } }
 }

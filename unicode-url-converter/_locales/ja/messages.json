@@ -31,5 +31,6 @@
   "alertInvalidChar": { "message": "変換後の文字は1文字で入力してください。" },
   "confirmReset": { "message": "すべての設定（変換リスト、対象タグ）をリセットしますか？\nこの操作は元に戻せません。" },
   "historyEmpty": { "message": "履歴はありません" },
-  "historyEntry": { "message": "$count$個の文字を変換", "placeholders": { "count": { "content": "$1" } } }
+  "historyEntry": { "message": "$count$個の文字を変換", "placeholders": { "count": { "content": "$1" } } },
+  "errorGeneric": { "message": "エラーが発生しました: $error$", "placeholders": { "error": { "content": "$1" } } }
 }

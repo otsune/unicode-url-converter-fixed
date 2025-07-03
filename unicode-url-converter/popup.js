@@ -57,7 +57,7 @@ document.addEventListener('DOMContentLoaded', function() {
       if (error.message.includes('Could not establish connection')) {
         showStatus(false, chrome.i18n.getMessage('errorConnection'));
       } else {
-        showStatus(false, 'エラーが発生しました: ' + error.message);
+        showStatus(false, chrome.i18n.getMessage('errorGeneric', [error.message]));
       }
     }
   });
@@ -98,15 +98,19 @@ document.addEventListener('DOMContentLoaded', function() {
     reader.readAsText(file);
   });
 
-  exportBtn.addEventListener('click', async () => {
+  exportBtn.addEventListener('click', async function() {
     const map = await getConversionMap();
-    const blob = new Blob([JSON.stringify(map, null, 2)], { type: 'application/json' });
+    const blob = new Blob([JSON.stringify(map, null, 2)], {type: 'application/json'});
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = 'unicode-converter-settings.json';
+    a.download = 'unicode-url-converter-map.json';
+    document.body.appendChild(a);
     a.click();
-    URL.revokeObjectURL(url);
+    setTimeout(() => {
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    }, 100);
   });
 
   resetBtn.addEventListener('click', () => {
