@@ -46,7 +46,7 @@ function getMessage(key, substitutions = []) {
 export function localizeHtml() {
   document.querySelectorAll('[data-i18n]').forEach(elem => {
     const msg = getMessage(elem.dataset.i18n);
-    if (msg) elem.innerText = msg;
+    if (msg) elem.innerHTML = msg;
   });
 }
 
