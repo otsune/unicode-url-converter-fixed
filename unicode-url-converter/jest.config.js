@@ -8,6 +8,8 @@ export default {
     'controllers/**/*.js',
     'core/**/*.js',
     'renderers/**/*.js',
+    'popup.js',
+    'ui.js',
     '!**/node_modules/**',
     '!**/tests/**'
   ],

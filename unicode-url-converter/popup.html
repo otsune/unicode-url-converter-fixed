@@ -79,7 +79,7 @@
   <div class="settings">
     <h4 style="margin-bottom:8px;" data-i18n="customizeTitle">変換対象文字のカスタマイズ</h4>
     <form id="addForm" style="display:flex;gap:4px;margin-bottom:8px;">
-      <input id="unicodeInput" type="text" data-i18n-placeholder="addUnicodePlaceholder" placeholder="例: ˸, \u02F8, U+02F8" style="width:80px;text-align:center;" required pattern="^(\\\\u[0-9A-Fa-f]{4}|U\+[0-9A-Fa-f]{4}|.)$" title="Unicode文字、\uXXXX形式、またはU+XXXX形式で入力">
+      <input id="unicodeInput" type="text" data-i18n-placeholder="addUnicodePlaceholder" placeholder="例: ˸, \u02F8, U+02F8" style="width:80px;text-align:center;" required pattern="^(\\\\u[0-9A-Fa-f]{4}|[uU]\+[0-9A-Fa-f]{4}|.)$" title="Unicode文字、\uXXXX形式、またはU+XXXX形式で入力">
       <input id="replaceInput" type="text" maxlength="1" data-i18n-placeholder="addReplacePlaceholder" placeholder=":" style="width:40px;text-align:center;" required>
       <button type="submit" style="flex:1;" data-i18n="addButton">追加</button>
     </form>
