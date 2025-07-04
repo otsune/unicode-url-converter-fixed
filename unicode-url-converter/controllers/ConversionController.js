@@ -102,9 +102,10 @@ export class ConversionController {
 
       if (settings.conversionMap) {
         // 変換マップの妥当性チェック
-        const validationResult = this.validateConversionMap(settings.conversionMap);
-        if (!validationResult.valid) {
-          throw new Error(`Invalid conversion map: ${validationResult.errors.join(', ')}`);
+        const validationResult = await this.validateConversionMap(settings.conversionMap);
+        if (!validationResult.success || !validationResult.data.valid) {
+          const errors = validationResult.data?.errors || ['Validation failed'];
+          throw new Error(`Invalid conversion map: ${errors.join(', ')}`);
         }
 
         const result = await this.storageService.setConversionMap(settings.conversionMap);
@@ -115,9 +116,10 @@ export class ConversionController {
 
       if (settings.targetTags) {
         // タグセレクタの妥当性チェック
-        const validationResult = this.validateTargetTags(settings.targetTags);
-        if (!validationResult.valid) {
-          throw new Error(`Invalid target tags: ${validationResult.errors.join(', ')}`);
+        const validationResult = await this.validateTargetTags(settings.targetTags);
+        if (!validationResult.success || !validationResult.data.valid) {
+          const errors = validationResult.data?.errors || ['Validation failed'];
+          throw new Error(`Invalid target tags: ${errors.join(', ')}`);
         }
 
         const result = await this.storageService.setTargetTags(settings.targetTags);
@@ -136,68 +138,93 @@ export class ConversionController {
   /**
    * 変換マップの妥当性を検証
    * @param {Object} conversionMap - 変換マップ
-   * @returns {Object} 検証結果
+   * @returns {Promise<Object>} 検証結果
    */
-  validateConversionMap(conversionMap) {
-    const errors = [];
+  async validateConversionMap(conversionMap) {
+    return safeExecute(async () => {
+      const errors = [];
 
-    if (!conversionMap || typeof conversionMap !== 'object') {
-      errors.push('Conversion map must be an object');
-      return { valid: false, errors };
-    }
-
-    for (const [unicode, replacement] of Object.entries(conversionMap)) {
-      // Unicodeキーの形式チェック
-      if (!/^\\u[0-9A-Fa-f]{4}$/.test(unicode)) {
-        errors.push(`Invalid Unicode format: ${unicode}`);
+      if (!conversionMap || typeof conversionMap !== 'object') {
+        errors.push('Conversion map must be an object');
+        return { valid: false, errors };
       }
 
-      // 置換文字の妥当性チェック
-      if (typeof replacement !== 'string' || replacement.length !== 1) {
-        errors.push(`Replacement must be a single character: ${unicode} -> ${replacement}`);
+      for (const [unicode, replacement] of Object.entries(conversionMap)) {
+        // Unicodeキーの形式チェック - \uXXXX形式または実際のUnicode文字を許可
+        const isUnicodeFormat = /^\\u[0-9A-Fa-f]{4}$/.test(unicode);
+        const isActualUnicodeChar = unicode.length === 1 && unicode.charCodeAt(0) > 127;
+        
+        if (!isUnicodeFormat && !isActualUnicodeChar) {
+          errors.push(`Invalid Unicode format: ${unicode} (must be \\uXXXX format or actual Unicode character)`);
+        }
+
+        // 置換文字の妥当性チェック
+        if (typeof replacement !== 'string' || replacement.length !== 1) {
+          errors.push(`Replacement must be a single character: ${unicode} -> ${replacement}`);
+        }
       }
-    }
 
-    // 重複する置換文字チェック
-    const replacements = Object.values(conversionMap);
-    const uniqueReplacements = new Set(replacements);
-    if (replacements.length !== uniqueReplacements.size) {
-      errors.push('Duplicate replacement characters found');
-    }
+      // 重複する置換文字チェック
+      const replacements = Object.values(conversionMap);
+      const uniqueReplacements = new Set(replacements);
+      if (replacements.length !== uniqueReplacements.size) {
+        errors.push('Duplicate replacement characters found');
+      }
 
-    return {
-      valid: errors.length === 0,
-      errors
-    };
+      return {
+        valid: errors.length === 0,
+        errors,
+        checkedEntries: Object.keys(conversionMap).length,
+        timestamp: new Date().toISOString()
+      };
+    }, 'Failed to validate conversion map');
   }
 
   /**
    * 対象タグセレクタの妥当性を検証
    * @param {string} targetTags - 対象タグセレクタ
-   * @returns {Object} 検証結果
+   * @returns {Promise<Object>} 検証結果
    */
-  validateTargetTags(targetTags) {
-    const errors = [];
+  async validateTargetTags(targetTags) {
+    return safeExecute(async () => {
+      const errors = [];
 
-    if (typeof targetTags !== 'string' || !targetTags.trim()) {
-      errors.push('Target tags must be a non-empty string');
-      return { valid: false, errors };
-    }
+      if (typeof targetTags !== 'string' || !targetTags.trim()) {
+        errors.push('Target tags must be a non-empty string');
+        return { 
+          valid: false, 
+          errors,
+          checkedSelector: targetTags,
+          timestamp: new Date().toISOString()
+        };
+      }
 
-    // CSSセレクタの基本的な妥当性チェック
-    try {
-      // ダミー要素でセレクタをテスト
-      const testElement = document.createElement('div');
-      testElement.innerHTML = '<p>test</p><div>test</div>';
-      testElement.querySelectorAll(targetTags.trim());
-    } catch (error) {
-      errors.push(`Invalid CSS selector: ${targetTags}`);
-    }
-
-    return {
-      valid: errors.length === 0,
-      errors
-    };
+      // CSSセレクタの基本的な妥当性チェック
+      try {
+        // ダミー要素でセレクタをテスト
+        const testElement = document.createElement('div');
+        testElement.innerHTML = '<p>test</p><div>test</div>';
+        const matchedElements = testElement.querySelectorAll(targetTags.trim());
+        
+        return {
+          valid: true,
+          errors: [],
+          checkedSelector: targetTags.trim(),
+          testMatches: matchedElements.length,
+          timestamp: new Date().toISOString()
+        };
+      } catch (error) {
+        errors.push(`Invalid CSS selector: ${targetTags}`);
+        
+        return {
+          valid: false,
+          errors,
+          checkedSelector: targetTags,
+          errorDetails: error.message,
+          timestamp: new Date().toISOString()
+        };
+      }
+    }, 'Failed to validate target tags');
   }
 
   /**
@@ -233,9 +260,36 @@ export class ConversionController {
 
       const map = conversionMap || await this.storageService.getConversionMap();
       
-      // パターン作成
-      const keys = Object.keys(map);
-      const pattern = new RegExp('[' + keys.join('') + ']', 'g');
+      // パターン作成 - Unicodeキー形式（\uXXXX）を実際の文字に変換
+      const unicodeChars = [];
+      for (const [unicodeKey, replacement] of Object.entries(map)) {
+        if (/^\\u[0-9A-Fa-f]{4}$/.test(unicodeKey)) {
+          // \uXXXX形式から実際のUnicode文字に変換
+          const codePoint = parseInt(unicodeKey.substring(2), 16);
+          const actualChar = String.fromCharCode(codePoint);
+          unicodeChars.push({
+            char: actualChar,
+            key: unicodeKey,
+            replacement: replacement
+          });
+        }
+      }
+      
+      if (unicodeChars.length === 0) {
+        return {
+          original: sampleText,
+          converted: sampleText,
+          conversions: 0,
+          changes: [],
+          hasChanges: false
+        };
+      }
+
+      // 実際の文字でパターンを作成
+      const charPattern = unicodeChars.map(item => 
+        item.char.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+      ).join('|');
+      const pattern = new RegExp(`(${charPattern})`, 'g');
       
       // 変換実行
       let convertedText = sampleText;
@@ -243,13 +297,18 @@ export class ConversionController {
       const changedPositions = [];
 
       convertedText = sampleText.replace(pattern, (match, offset) => {
-        conversions++;
-        changedPositions.push({
-          position: offset,
-          original: match,
-          replacement: map[match] || match
-        });
-        return map[match] || match;
+        const unicodeItem = unicodeChars.find(item => item.char === match);
+        if (unicodeItem) {
+          conversions++;
+          changedPositions.push({
+            position: offset,
+            original: match,
+            originalKey: unicodeItem.key,
+            replacement: unicodeItem.replacement
+          });
+          return unicodeItem.replacement;
+        }
+        return match;
       });
 
       return {

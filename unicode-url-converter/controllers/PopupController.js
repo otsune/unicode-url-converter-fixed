@@ -277,9 +277,10 @@ export class PopupController {
       const importedMap = JSON.parse(text);
       
       // インポートデータの検証
-      const validation = this.conversionController.validateConversionMap(importedMap);
-      if (!validation.valid) {
-        this.uiRenderer.showStatus(false, chrome.i18n.getMessage('errorImportFailed', [validation.errors.join(', ')]));
+      const validation = await this.conversionController.validateConversionMap(importedMap);
+      if (!validation.success || !validation.data.valid) {
+        const errors = validation.data?.errors || ['Validation failed'];
+        this.uiRenderer.showStatus(false, chrome.i18n.getMessage('errorImportFailed', [errors.join(', ')]));
         return;
       }
 
