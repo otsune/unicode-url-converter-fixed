@@ -1,29 +1,12 @@
-// デフォルトの変換マップ
-// Unicode文字を対応するASCII文字に変換するためのデフォルト設定
-const DEFAULT_MAP = {
-  '\u02F8': ':',
-  '\u2024': '.',
-  '\u2044': '/'
-};
-
-/**
- * Chrome拡張APIが利用可能かどうかをチェックします。
- * 特にchrome.storage.localが利用可能であることを確認します。
- * @returns {boolean} Chrome APIが利用可能な場合はtrue、そうでない場合はfalse。
- */
-function isChromeAPI() {
-  return typeof chrome !== 'undefined' &&
-         typeof chrome.storage !== 'undefined' &&
-         typeof chrome.storage.local !== 'undefined';
-}
+import { isChromeAPI, getDefaultConversionMap } from './common.js';
 
 export async function getConversionMap() {
   if (!isChromeAPI()) {
-    return DEFAULT_MAP;
+    return getDefaultConversionMap();
   }
   return new Promise(resolve => {
     chrome.storage.local.get(['conversionMap'], result => {
-      resolve(result.conversionMap || DEFAULT_MAP);
+      resolve(result.conversionMap || getDefaultConversionMap());
     });
   });
 }

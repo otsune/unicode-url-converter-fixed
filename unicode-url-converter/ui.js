@@ -1,9 +1,5 @@
 import { getConversionMap, getHistory, setConversionMap, saveHistoryEntry, clearHistory } from './storage.js';
-
-// chrome APIが利用可能かチェック
-function isChromeAPI() {
-  return typeof chrome !== 'undefined' && chrome.i18n;
-}
+import { isChromeI18n } from './common.js';
 
 /**
  * 指定されたキーに対応する国際化メッセージを取得します。
@@ -13,7 +9,7 @@ function isChromeAPI() {
  * @returns {string} 取得されたメッセージ文字列。
  */
 function getMessage(key, substitutions = []) {
-  if (!isChromeAPI()) {
+  if (!isChromeI18n()) {
     // デフォルトメッセージ（英語）
     const defaultMessages = {
       'popupTitle': 'Unicode URL Converter',

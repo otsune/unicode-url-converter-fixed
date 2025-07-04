@@ -1,58 +1,17 @@
-// デフォルトの変換マップ
-const DEFAULT_MAP = {
-  '\u02F8': ':',
-  '\u2024': '.',
-  '\u2044': '/'
-};
-
-// chrome APIが利用可能かチェック
-function isChromeAPI() {
-  return typeof chrome !== 'undefined' && chrome.storage && chrome.storage.local;
-}
+// utils.jsから変換機能をインポート
+import { createUnicodePattern, processTextNodes } from './utils.js';
+import { isChromeAPI, getDefaultConversionMap } from './common.js';
 
 // 変換マップを取得する関数
 async function getConversionMap() {
   if (!isChromeAPI()) {
-    return DEFAULT_MAP;
+    return getDefaultConversionMap();
   }
   return new Promise(resolve => {
     chrome.storage.local.get(['conversionMap'], result => {
-      resolve(result.conversionMap || DEFAULT_MAP);
+      resolve(result.conversionMap || getDefaultConversionMap());
     });
   });
-}
-
-// Unicodeパターンを作成する関数
-function createUnicodePattern(map) {
-  const keys = Object.keys(map);
-  return new RegExp('[' + keys.join('') + ']', 'g');
-}
-
-// テキストノードを処理する関数
-function processTextNodes(element, map, pattern) {
-  let conversions = 0;
-  const walker = document.createTreeWalker(
-    element,
-    NodeFilter.SHOW_TEXT,
-    null,
-    false
-  );
-  const textNodes = [];
-  let node;
-  while (node = walker.nextNode()) {
-    textNodes.push(node);
-  }
-  textNodes.forEach(textNode => {
-    const originalText = textNode.textContent;
-    const convertedText = originalText.replace(pattern, (match) => {
-      conversions++;
-      return map[match] || match;
-    });
-    if (originalText !== convertedText) {
-      textNode.textContent = convertedText;
-    }
-  });
-  return conversions;
 }
 
 /**

@@ -86,31 +86,31 @@
 ### **優先度1（緊急）：セキュリティ・パフォーマンス修正**
 
 #### 🛡️ **セキュリティ脆弱性の修正**
-- [ ] **XSS脆弱性修正** (ui.js:114行)
+- [x] **XSS脆弱性修正** (ui.js:114行) ✅
   - `innerHTML` → `createElement/textContent` に変更
   - ユーザー入力データのサニタイゼーション強化
-  - 影響範囲：renderConversionList関数
+  - 影響範囲：renderConversionList関数、renderHistory関数
 
 - [ ] **URL検証強化** (popup.js:99-108行)
   - ブラックリスト方式からホワイトリスト方式へ変更
   - 新プロトコルスキーム対応
   - 影響範囲：convertBtn イベントハンドラー
 
-- [ ] **権限最小化** (manifest.json)
-  - `<all_urls>` 権限の見直し
-  - 動的権限要求の検討
-  - 影響範囲：manifest.json content_scripts
+- [x] **権限最小化** (manifest.json) ✅
+  - `<all_urls>` content_scripts削除
+  - 動的スクリプト注入のみに変更
+  - 影響範囲：manifest.json、セキュリティリスク大幅減少
 
 #### ⚡ **パフォーマンス最適化**
-- [ ] **DOM操作最適化** (ui.js:101-122行)
-  - `innerHTML = ''` → `replaceChildren()` に変更
-  - DocumentFragment使用によるバッチ更新
+- [x] **DOM操作最適化** (ui.js:101-122行) ✅
+  - `innerHTML = ''` → `replaceChildren()` + DocumentFragment
+  - バッチDOM更新によるパフォーマンス向上
   - 影響範囲：renderConversionList, renderHistory
 
-- [ ] **メモリリーク対策** (popup.js:92-149行)
-  - イベントリスナーの適切な削除
-  - setTimeout の管理改善
-  - 影響範囲：全体的なイベント処理
+- [x] **メモリリーク対策** (popup.js:92-149行) ✅
+  - statusTimerの適切な管理
+  - beforeunloadでのクリーンアップ追加
+  - 影響範囲：全体的なタイマー処理
 
 ### **優先度2（高）：アーキテクチャ改善**
 
@@ -175,9 +175,9 @@
 ### **優先度4（低）：品質向上**
 
 #### 📊 **ログ・デバッグ改善**
-- [ ] **本番環境ログの削除**
-  - console.log の条件分岐化
-  - 開発/本番環境の分離
+- [x] **本番環境ログの削除** ✅
+  - 24箇所のconsole.log完全削除
+  - popup.js、storage.js、ui.js、content.jsから除去
   - 影響範囲：全ファイル
 
 - [ ] **エラーログの構造化**
@@ -200,11 +200,12 @@
 
 ## 実装フェーズ計画
 
-### **フェーズ1（1-2週間）：緊急対応**
-1. XSS脆弱性修正 (ui.js)
-2. DOM操作最適化 (ui.js)  
-3. 本番ログ削除 (全ファイル)
-4. 権限最小化 (manifest.json)
+### **✅ フェーズ1（完了）：緊急対応**
+1. ✅ XSS脆弱性修正 (ui.js) - innerHTML → createElement + textContent
+2. ✅ DOM操作最適化 (ui.js) - DocumentFragment + replaceChildren  
+3. ✅ 本番ログ削除 (全ファイル) - 24箇所のconsole.log削除
+4. ✅ 権限最小化 (manifest.json) - content_scripts削除、動的注入のみ
+5. ✅ メモリリーク対策 - statusTimer管理、beforeunloadクリーンアップ
 
 ### **フェーズ2（2-3週間）：構造改善**
 1. Controllers レイヤー作成
