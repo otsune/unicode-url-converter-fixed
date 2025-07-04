@@ -61,5 +61,9 @@
   "errorExportFailed": { "message": "エクスポートに失敗しました: $error$", "placeholders": { "error": { "content": "$1" } } },
   "errorClearHistoryFailed": { "message": "履歴のクリアに失敗しました: $error$", "placeholders": { "error": { "content": "$1" } } },
   "statusConverting": { "message": "変換中..." },
-  "statusNoTargetChars": { "message": "変換対象の文字が見つかりません" }
+  "statusNoTargetChars": { "message": "変換対象の文字が見つかりません" },
+  "errorUnicodeRequired": { "message": "Unicode文字が必要です" },
+  "errorReplacementRequired": { "message": "置換文字が必要です" },
+  "errorAsciiNotAllowed": { "message": "ASCII文字（a-z、0-9など）は使用できません。Unicode文字のみ使用してください。" },
+  "errorInvalidUnicodeFormat": { "message": "無効な形式です。単一のUnicode文字または\\uXXXX形式で入力してください。" }
 }

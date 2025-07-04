@@ -61,5 +61,9 @@
   "errorExportFailed": { "message": "Export failed: $error$", "placeholders": { "error": { "content": "$1" } } },
   "errorClearHistoryFailed": { "message": "Failed to clear history: $error$", "placeholders": { "error": { "content": "$1" } } },
   "statusConverting": { "message": "Converting..." },
-  "statusNoTargetChars": { "message": "No target characters found" }
+  "statusNoTargetChars": { "message": "No target characters found" },
+  "errorUnicodeRequired": { "message": "Unicode character is required" },
+  "errorReplacementRequired": { "message": "Replacement character is required" },
+  "errorAsciiNotAllowed": { "message": "ASCII characters (a-z, 0-9, etc.) are not allowed. Please use Unicode characters only." },
+  "errorInvalidUnicodeFormat": { "message": "Invalid format. Please enter a single Unicode character or \\uXXXX format." }
 }

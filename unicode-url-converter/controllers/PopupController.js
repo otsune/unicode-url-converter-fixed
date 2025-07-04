@@ -154,13 +154,41 @@ export class PopupController {
       const unicodeChar = formData.get('unicodeInput')?.trim();
       const replaceChar = formData.get('replaceInput')?.trim();
       
-      if (!unicodeChar || !replaceChar) {
-        this.uiRenderer.showStatus(false, chrome.i18n.getMessage('errorBothFieldsRequired'));
+      if (!unicodeChar || unicodeChar.length === 0) {
+        this.uiRenderer.showStatus(false, chrome.i18n.getMessage('errorUnicodeRequired'));
         return;
       }
 
-      // Unicode文字をキー形式に変換
-      const unicodeKey = '\\u' + unicodeChar.charCodeAt(0).toString(16).toUpperCase().padStart(4, '0');
+      if (!replaceChar || replaceChar.length === 0) {
+        this.uiRenderer.showStatus(false, chrome.i18n.getMessage('errorReplacementRequired'));
+        return;
+      }
+
+      // Unicode文字の検証とキー形式への変換
+      let unicodeKey;
+      
+      // 入力が\uXXXX形式かチェック
+      if (/^\\u[0-9A-Fa-f]{4}$/i.test(unicodeChar)) {
+        // 既に\uXXXX形式の場合はそのまま使用（大文字に統一）
+        unicodeKey = unicodeChar.toLowerCase().replace(/\\u(.{4})/, (match, hex) => 
+          '\\u' + hex.toUpperCase()
+        );
+      } else if (unicodeChar.length === 1) {
+        // 単一文字の場合は\uXXXX形式に変換
+        const charCode = unicodeChar.charCodeAt(0);
+        
+        // ASCII文字（0-127）はUnicode変換対象外として警告
+        if (charCode <= 127) {
+          this.uiRenderer.showStatus(false, chrome.i18n.getMessage('errorAsciiNotAllowed'));
+          return;
+        }
+        
+        unicodeKey = '\\u' + charCode.toString(16).toUpperCase().padStart(4, '0');
+      } else {
+        // 複数文字や無効な形式
+        this.uiRenderer.showStatus(false, chrome.i18n.getMessage('errorInvalidUnicodeFormat'));
+        return;
+      }
       
       // 現在の変換マップを取得
       const currentMap = await this.storageService.getConversionMap();
