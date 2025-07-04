@@ -7,7 +7,7 @@
   "targetTagsPlaceholder": { "message": "e.g., p, div, span" },
   "saveButton": { "message": "Save" },
   "customizeTitle": { "message": "Customize Conversion Characters" },
-  "addUnicodePlaceholder": { "message": "e.g., ˸" },
+  "addUnicodePlaceholder": { "message": "˸, \\u02F8, or U+02F8" },
   "addReplacePlaceholder": { "message": ":" },
   "addButton": { "message": "Add" },
   "importButton": { "message": "Import" },

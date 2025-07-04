@@ -58,6 +58,10 @@
       border: 1px solid #f5c6cb;
       box-shadow: 0 1px 3px rgba(0,0,0,0.1);
     }
+    input:invalid {
+      border-color: #ea4335;
+      box-shadow: 0 0 0 1px #ea4335;
+    }
   </style>
 </head>
 <body>
@@ -75,7 +79,7 @@
   <div class="settings">
     <h4 style="margin-bottom:8px;" data-i18n="customizeTitle">変換対象文字のカスタマイズ</h4>
     <form id="addForm" style="display:flex;gap:4px;margin-bottom:8px;">
-      <input id="unicodeInput" type="text" maxlength="1" data-i18n-placeholder="addUnicodePlaceholder" placeholder="例: ˸" style="width:40px;text-align:center;" required>
+      <input id="unicodeInput" type="text" data-i18n-placeholder="addUnicodePlaceholder" placeholder="例: ˸, \u02F8, U+02F8" style="width:80px;text-align:center;" required pattern="^(\\\\u[0-9A-Fa-f]{4}|U\+[0-9A-Fa-f]{4}|.)$" title="Unicode文字、\uXXXX形式、またはU+XXXX形式で入力">
       <input id="replaceInput" type="text" maxlength="1" data-i18n-placeholder="addReplacePlaceholder" placeholder=":" style="width:40px;text-align:center;" required>
       <button type="submit" style="flex:1;" data-i18n="addButton">追加</button>
     </form>
@@ -84,6 +88,9 @@
       <span data-i18n="example_info">例:</span><br>
       <div class="example-list" data-i18n="example_list">
         ˸ (U+02F8) → :<br>․ (U+2024) → .<br>⁄ (U+2044) → /
+      </div>
+      <div style="font-size:10px;color:#888;margin-top:4px;">
+        形式: 実際の文字、\uXXXX、U+XXXX
       </div>
     </div>
     <div style="margin-top:12px;display:flex;gap:8px;">

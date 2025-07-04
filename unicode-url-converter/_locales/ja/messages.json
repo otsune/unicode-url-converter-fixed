@@ -7,7 +7,7 @@
   "targetTagsPlaceholder": { "message": "例: p, div, span" },
   "saveButton": { "message": "保存" },
   "customizeTitle": { "message": "変換対象文字のカスタマイズ" },
-  "addUnicodePlaceholder": { "message": "例: ˸" },
+  "addUnicodePlaceholder": { "message": "例: ˸, \\u02F8, U+02F8" },
   "addReplacePlaceholder": { "message": ":" },
   "addButton": { "message": "追加" },
   "importButton": { "message": "インポート" },
