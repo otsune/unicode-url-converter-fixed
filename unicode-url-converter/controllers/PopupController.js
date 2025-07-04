@@ -309,8 +309,27 @@ export class PopupController {
       const text = await this.readFileAsText(file);
       const importedMap = JSON.parse(text);
       
+      // U+XXXX形式を\uXXXX形式に変換してインポート
+      const convertedMap = {};
+      Object.entries(importedMap).forEach(([key, value]) => {
+        let convertedKey = key;
+        
+        // U+XXXX形式を\uXXXX形式に変換
+        if (/^U\+[0-9A-Fa-f]{4}$/i.test(key)) {
+          const hexValue = key.substring(2).toUpperCase();
+          convertedKey = `\\u${hexValue}`;
+        }
+        // 実際のUnicode文字を\uXXXX形式に変換
+        else if (key.length === 1 && key.charCodeAt(0) > 127) {
+          const charCode = key.charCodeAt(0);
+          convertedKey = '\\u' + charCode.toString(16).toUpperCase().padStart(4, '0');
+        }
+        
+        convertedMap[convertedKey] = value;
+      });
+
       // インポートデータの検証
-      const validation = await this.conversionController.validateConversionMap(importedMap);
+      const validation = await this.conversionController.validateConversionMap(convertedMap);
       if (!validation.success || !validation.data.valid) {
         const errors = validation.data?.errors || ['Validation failed'];
         this.uiRenderer.showStatus(false, chrome.i18n.getMessage('errorImportFailed', [errors.join(', ')]));
@@ -318,7 +337,7 @@ export class PopupController {
       }
 
       const updateResult = await this.conversionController.updateConversionSettings({
-        conversionMap: importedMap
+        conversionMap: convertedMap
       });
       
       if (updateResult.success) {
@@ -338,7 +357,22 @@ export class PopupController {
   async handleExportSettings() {
     try {
       const conversionMap = await this.storageService.getConversionMap();
-      const exportData = JSON.stringify(conversionMap, null, 2);
+      
+      // \uXXXX形式をU+XXXX形式に変換してエクスポート
+      const exportMap = {};
+      Object.entries(conversionMap).forEach(([unicodeKey, replaceChar]) => {
+        let exportKey = unicodeKey;
+        
+        // \uXXXX形式をU+XXXX形式に変換
+        if (/^\\u[0-9A-Fa-f]{4}$/i.test(unicodeKey)) {
+          const hexValue = unicodeKey.substring(2).toUpperCase();
+          exportKey = `U+${hexValue}`;
+        }
+        
+        exportMap[exportKey] = replaceChar;
+      });
+      
+      const exportData = JSON.stringify(exportMap, null, 2);
       
       const blob = new Blob([exportData], { type: 'application/json' });
       const url = URL.createObjectURL(blob);
