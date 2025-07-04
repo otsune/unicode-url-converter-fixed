@@ -207,17 +207,17 @@
 4. ✅ 権限最小化 (manifest.json) - content_scripts削除、動的注入のみ
 5. ✅ メモリリーク対策 - statusTimer管理、beforeunloadクリーンアップ
 
-### **フェーズ2（2-3週間）：構造改善**
-1. Controllers レイヤー作成
-2. Services レイヤー作成
-3. 依存関係注入導入
-4. 長大関数の分割
+### **✅ フェーズ2（完了）：構造改善**
+1. ✅ Controllers レイヤー作成 - PopupController, ConversionController
+2. ✅ Services レイヤー作成 - StorageService, MessageService, HistoryService
+3. ✅ 依存関係注入導入 - DependencyContainer, ServiceFactory
+4. ✅ 長大関数の分割 - 各コントローラーに責任分散
 
-### **フェーズ3（2-3週間）：品質向上**
-1. 重複コード削除
-2. エラーハンドリング統一
-3. テスト可能性向上
-4. コードメトリクス改善
+### **✅ フェーズ3（完了）：品質向上**
+1. ✅ 重複コード削除 - common.js統一、各モジュールから重複除去
+2. ✅ エラーハンドリング統一 - ErrorHandler導入、統一エラー形式
+3. ✅ テスト可能性向上 - DOMManager抽象化、依存注入対応
+4. ✅ コードメトリクス改善 - UIRenderer, 包括的テストスイート
 
 ### **フェーズ4（1-2週間）：完成**
 1. 最終テスト実行

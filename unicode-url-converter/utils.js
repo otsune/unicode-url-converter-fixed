@@ -1,4 +1,4 @@
-import { getConversionMap } from './storage.js';
+// utils.js は Services レイヤーから独立したピュアな変換関数のみを提供
 
 /**
  * 変換マップのキー（Unicode文字）から正規表現パターンを作成します。
