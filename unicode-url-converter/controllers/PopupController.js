@@ -173,6 +173,11 @@ export class PopupController {
         unicodeKey = unicodeChar.toLowerCase().replace(/\\u(.{4})/, (match, hex) => 
           '\\u' + hex.toUpperCase()
         );
+      } else if (/^U\+[0-9A-Fa-f]{4}$/i.test(unicodeChar)) {
+        // U+XXXX形式の場合は\uXXXX形式に変換
+        unicodeKey = unicodeChar.toLowerCase().replace(/u\+(.{4})/, (match, hex) => 
+          '\\u' + hex.toUpperCase()
+        );
       } else if (unicodeChar.length === 1) {
         // 単一文字の場合は\uXXXX形式に変換
         const charCode = unicodeChar.charCodeAt(0);

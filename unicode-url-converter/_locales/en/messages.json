@@ -65,5 +65,5 @@
   "errorUnicodeRequired": { "message": "Unicode character is required" },
   "errorReplacementRequired": { "message": "Replacement character is required" },
   "errorAsciiNotAllowed": { "message": "ASCII characters (a-z, 0-9, etc.) are not allowed. Please use Unicode characters only." },
-  "errorInvalidUnicodeFormat": { "message": "Invalid format. Please enter a single Unicode character or \\uXXXX format." }
+  "errorInvalidUnicodeFormat": { "message": "Invalid format. Please enter a single Unicode character, \\uXXXX format, or U+XXXX format." }
 }
