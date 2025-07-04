@@ -13,12 +13,6 @@
     "default_popup": "popup.html",
     "default_title": "Unicode URL Converter"
   },
-  "content_scripts": [
-    {
-      "matches": ["<all_urls>"],
-      "js": ["content.js"]
-    }
-  ],
   "icons": {
     "16": "icon16.png",
     "48": "icon48.png",

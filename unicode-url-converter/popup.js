@@ -9,7 +9,6 @@ const MESSAGE_ACTION_CONVERT_TEXT = 'convertText';
 const STORAGE_KEY_CONVERSION_MAP = 'conversionMap';
 
 document.addEventListener('DOMContentLoaded', function() {
-  console.log('DOMContentLoaded event fired');
   
   localizeHtml();
 
@@ -21,22 +20,7 @@ document.addEventListener('DOMContentLoaded', function() {
   const exportBtn = document.getElementById('exportBtn');
   const clearHistoryBtn = document.getElementById('clearHistoryBtn');
 
-  console.log('DOM elements found:', {
-    convertBtn: !!convertBtn,
-    addForm: !!addForm,
-    conversionList: !!conversionList,
-    importInput: !!importInput,
-    exportBtn: !!exportBtn,
-    clearHistoryBtn: !!clearHistoryBtn
-  });
 
-  // 要素が存在しない場合はエラーをログに出力
-  if (!convertBtn) console.error('convertBtn not found');
-  if (!addForm) console.error('addForm not found');
-  if (!conversionList) console.error('conversionList not found');
-  if (!importInput) console.error('importInput not found');
-  if (!exportBtn) console.error('exportBtn not found');
-  if (!clearHistoryBtn) console.error('clearHistoryBtn not found');
 
   /**
    * 指定されたタブでコンテンツスクリプトが動作していることを確認し、必要であれば注入します。
@@ -51,21 +35,16 @@ document.addEventListener('DOMContentLoaded', function() {
     
     for (let attempt = 1; attempt <= maxRetries; attempt++) {
       try {
-        console.log(`Content script connection attempt ${attempt}/${maxRetries}`);
-        
         // まずpingで接続確認
         await chrome.tabs.sendMessage(tabId, { action: MESSAGE_ACTION_PING });
-        console.log('Content script is ready');
         return true;
         
       } catch (error) {
         lastError = error;
-        console.log(`Ping failed on attempt ${attempt}:`, error.message);
         
         if (attempt < maxRetries) {
           try {
             // Content scriptを注入
-            console.log('Injecting content script...');
             await chrome.scripting.executeScript({
               target: { tabId: tabId },
               files: ['content.js']
@@ -73,11 +52,9 @@ document.addEventListener('DOMContentLoaded', function() {
             
             // 注入後の待機時間を段階的に増加
             const waitTime = attempt * 200;
-            console.log(`Waiting ${waitTime}ms for content script to initialize...`);
             await new Promise(resolve => setTimeout(resolve, waitTime));
             
           } catch (injectError) {
-            console.error('Failed to inject content script:', injectError);
             lastError = injectError;
           }
         }
@@ -91,10 +68,7 @@ document.addEventListener('DOMContentLoaded', function() {
   if (convertBtn) {
     convertBtn.addEventListener('click', async function() {
       try {
-        console.log('Convert button clicked');
-        
         const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
-        console.log('Active tab:', tab.url);
         
         if (tab.url.startsWith('file://')) {
           showStatus(false, chrome.i18n.getMessage('errorFileUrl'));
@@ -111,10 +85,8 @@ document.addEventListener('DOMContentLoaded', function() {
         await ensureContentScript(tab.id);
         
         const tags = await getTargetTags();
-        console.log('Target tags:', tags);
         
         const response = await chrome.tabs.sendMessage(tab.id, { action: MESSAGE_ACTION_CONVERT_TEXT, tags: tags });
-        console.log('Conversion response:', response);
         
         showStatus(response.success, response.message, response.count);
         
@@ -124,16 +96,11 @@ document.addEventListener('DOMContentLoaded', function() {
             count: response.count,
             date: new Date().toISOString()
           };
-          console.log('Saving history entry:', historyEntry);
           await saveHistoryEntry(historyEntry);
-          console.log('History saved, rendering...');
           renderHistory();
-        } else {
-          console.log('Not saving history - success:', response.success, 'count:', response.count);
         }
         
       } catch (error) {
-        console.error('Conversion error:', error);
         
         // エラーメッセージに基づいて適切なメッセージを表示
         if (error.message.includes('Could not establish connection')) {
@@ -214,6 +181,14 @@ document.addEventListener('DOMContentLoaded', function() {
   
   if (conversionList) {
     conversionList.addEventListener('click', handleConversionListClick);
+  }
+});
+
+// ポップアップ終了時のクリーンアップ
+window.addEventListener('beforeunload', function() {
+  // ui.js のstatusTimerをクリア
+  if (typeof statusTimer !== 'undefined' && statusTimer) {
+    clearTimeout(statusTimer);
   }
 });
 

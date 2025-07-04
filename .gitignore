@@ -105,4 +105,7 @@ Thumbs.db
 
 # Test files
 *.test.js
-*.spec.js 
+*.spec.js
+
+# Claude Code guidance file
+CLAUDE.md 

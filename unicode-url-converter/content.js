@@ -83,7 +83,6 @@ async function convertTextAsync(selector = 'p') {
       count: totalConversions
     };
   } catch (error) {
-    console.error(chrome.i18n.getMessage('consoleConversionError'), error);
     if (error instanceof DOMException && error.name === 'SyntaxError') {
         return {
             success: false,
@@ -111,6 +110,4 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
   return true;
 });
 
-// ページ読み込み完了時にコンソールにメッセージを出力（デバッグ用）
-console.log(chrome.i18n.getMessage('contentScriptLoaded'));
 

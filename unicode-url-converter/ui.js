@@ -76,8 +76,18 @@ export function localizeHtml() {
  * @param {string} message - 表示するメッセージテキスト。
  * @param {number} [count=0] - 変換された文字数など、表示する数値。
  */
+// ステータス表示のタイマー管理
+let statusTimer = null;
+
 export function showStatus(success, message, count = 0) {
   const statusDiv = document.getElementById('status');
+  
+  // 既存のタイマーをクリア（メモリリーク対策）
+  if (statusTimer) {
+    clearTimeout(statusTimer);
+    statusTimer = null;
+  }
+  
   statusDiv.style.display = 'block';
   statusDiv.className = 'status ' + (success ? 'success' : 'error');
   
@@ -89,8 +99,10 @@ export function showStatus(success, message, count = 0) {
     statusDiv.textContent = message;
   }
   
-  setTimeout(() => {
+  // タイマーを管理してメモリリークを防止
+  statusTimer = setTimeout(() => {
     statusDiv.style.display = 'none';
+    statusTimer = null;
   }, 3000);
 }
 
@@ -101,7 +113,10 @@ export function showStatus(success, message, count = 0) {
 export async function renderConversionList() {
   const map = await getConversionMap();
   const list = document.getElementById('conversionList');
-  list.innerHTML = '';
+  
+  // DocumentFragmentを使用してバッチ更新
+  const fragment = document.createDocumentFragment();
+  
   Object.entries(map).forEach(([unicode, replace]) => {
     const li = document.createElement('li');
     li.dataset.key = unicode;
@@ -109,16 +124,49 @@ export async function renderConversionList() {
     li.style.alignItems = 'center';
     li.style.marginBottom = '4px';
     li.style.cursor = 'grab';
+    
     const codePoint = unicode.replace('\\u', 'U+');
-    li.innerHTML = `
-      <span style="width:80px;text-align:center;">${String.fromCharCode(parseInt(unicode.replace('\\u',''),16))} (${codePoint})</span>
-      <span style="width:30px;text-align:center;">→</span>
-      <span style="width:30px;text-align:center;">${replace}</span>
-      <button class="editBtn" data-key="${unicode}" style="margin-left:8px;">${getMessage('editButton')}</button>
-      <button class="deleteBtn" data-key="${unicode}" style="margin-left:4px;">${getMessage('deleteButton')}</button>
-    `;
-    list.appendChild(li);
+    
+    // XSS対策：安全なDOM要素作成
+    const unicodeSpan = document.createElement('span');
+    unicodeSpan.style.width = '80px';
+    unicodeSpan.style.textAlign = 'center';
+    unicodeSpan.textContent = `${String.fromCharCode(parseInt(unicode.replace('\\u',''),16))} (${codePoint})`;
+    
+    const arrowSpan = document.createElement('span');
+    arrowSpan.style.width = '30px';
+    arrowSpan.style.textAlign = 'center';
+    arrowSpan.textContent = '→';
+    
+    const replaceSpan = document.createElement('span');
+    replaceSpan.style.width = '30px';
+    replaceSpan.style.textAlign = 'center';
+    replaceSpan.textContent = replace; // ユーザー入力の安全な表示
+    
+    const editBtn = document.createElement('button');
+    editBtn.className = 'editBtn';
+    editBtn.dataset.key = unicode;
+    editBtn.style.marginLeft = '8px';
+    editBtn.textContent = getMessage('editButton');
+    
+    const deleteBtn = document.createElement('button');
+    deleteBtn.className = 'deleteBtn';
+    deleteBtn.dataset.key = unicode;
+    deleteBtn.style.marginLeft = '4px';
+    deleteBtn.textContent = getMessage('deleteButton');
+    
+    // 要素を組み立て
+    li.appendChild(unicodeSpan);
+    li.appendChild(arrowSpan);
+    li.appendChild(replaceSpan);
+    li.appendChild(editBtn);
+    li.appendChild(deleteBtn);
+    
+    fragment.appendChild(li);
   });
+  
+  // 一括でDOM更新（パフォーマンス向上）
+  list.replaceChildren(fragment);
 }
 
 /**
@@ -126,32 +174,48 @@ export async function renderConversionList() {
  * ストレージから履歴データを取得し、リストアイテムとして表示します。
  */
 export async function renderHistory() {
-  console.log('renderHistory called');
   const history = await getHistory();
-  console.log('History to render:', history);
   const historyList = document.getElementById('historyList');
-  historyList.innerHTML = '';
+  
+  // 履歴が空の場合
   if (history.length === 0) {
-    console.log('No history to display');
-    historyList.innerHTML = `<li>${getMessage('historyEmpty')}</li>`;
+    const emptyLi = document.createElement('li');
+    emptyLi.textContent = getMessage('historyEmpty');
+    historyList.replaceChildren(emptyLi);
     return;
   }
-  console.log('Rendering', history.length, 'history entries');
+  
+  // DocumentFragmentを使用してバッチ更新
+  const fragment = document.createDocumentFragment();
+  
   history.forEach(entry => {
     const li = document.createElement('li');
     li.style.fontSize = '12px';
     li.style.marginBottom = '4px';
-    li.innerHTML = `
-      <div title="${entry.url}" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${new URL(entry.url).hostname}</div>
-      <div style="color:#666;">${getMessage('historyEntry', [entry.count.toString()])} - ${new Date(entry.date).toLocaleString()}</div>
-    `;
-    historyList.appendChild(li);
+    
+    // XSS対策：安全なDOM要素作成
+    const urlDiv = document.createElement('div');
+    urlDiv.title = entry.url; // title属性は安全
+    urlDiv.style.whiteSpace = 'nowrap';
+    urlDiv.style.overflow = 'hidden';
+    urlDiv.style.textOverflow = 'ellipsis';
+    urlDiv.textContent = new URL(entry.url).hostname; // 安全なテキスト表示
+    
+    const detailDiv = document.createElement('div');
+    detailDiv.style.color = '#666';
+    detailDiv.textContent = `${getMessage('historyEntry', [entry.count.toString()])} - ${new Date(entry.date).toLocaleString()}`;
+    
+    li.appendChild(urlDiv);
+    li.appendChild(detailDiv);
+    fragment.appendChild(li);
   });
+  
+  // 一括でDOM更新
+  historyList.replaceChildren(fragment);
 }
 
 export function initSortableList(sortableList) {
   if (typeof Sortable === 'undefined') {
-    console.warn('Sortable library not available');
     return;
   }
   new Sortable(sortableList, {
