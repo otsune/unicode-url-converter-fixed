@@ -367,7 +367,7 @@ if (typeof window !== 'undefined') {
   window.PerformanceBenchmark = PerformanceBenchmark;
   
   // 自動実行（開発環境のみ）
-  if (process?.env?.NODE_ENV === 'development') {
+  if (typeof process !== 'undefined' && process?.env?.NODE_ENV === 'development') {
     const benchmark = new PerformanceBenchmark();
     benchmark.runComprehensiveTest().then(() => {
       console.log('🎯 Performance benchmark completed');

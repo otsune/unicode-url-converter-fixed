@@ -489,7 +489,7 @@ if (typeof window !== 'undefined') {
   window.SecurityAudit = SecurityAudit;
   
   // 自動実行（開発環境のみ）
-  if (process?.env?.NODE_ENV === 'development') {
+  if (typeof process !== 'undefined' && process?.env?.NODE_ENV === 'development') {
     const audit = new SecurityAudit();
     audit.runComprehensiveAudit().then(() => {
       console.log('🔐 Security audit completed');

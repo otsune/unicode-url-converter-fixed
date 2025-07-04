@@ -22,7 +22,7 @@ async function initializeApplication() {
     const container = getServiceContainer();
     
     // 開発環境でのデバッグ情報出力
-    if (process?.env?.NODE_ENV === 'development') {
+    if (typeof process !== 'undefined' && process?.env?.NODE_ENV === 'development') {
       logServiceContainerInfo();
     }
 
@@ -163,7 +163,7 @@ window.addEventListener('unhandledrejection', function(event) {
 });
 
 // 開発用：グローバルアクセス（デバッグ目的）
-if (process?.env?.NODE_ENV === 'development') {
+if (typeof process !== 'undefined' && process?.env?.NODE_ENV === 'development') {
   window.debugApp = {
     get popupController() { return popupController; },
     get conversionController() { return conversionController; },

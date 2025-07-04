@@ -120,7 +120,7 @@ export class PopupController {
     event.preventDefault();
     
     try {
-      this.uiRenderer.showStatus(true, 'Converting...', 0);
+      this.uiRenderer.showStatus(true, chrome.i18n.getMessage('statusConverting'), 0);
       
       const result = await this.conversionController.executeConversion();
       
@@ -132,13 +132,13 @@ export class PopupController {
           // 履歴を更新
           await this.refreshHistory();
         } else {
-          this.uiRenderer.showStatus(true, 'No target characters found', 0);
+          this.uiRenderer.showStatus(true, chrome.i18n.getMessage('statusNoTargetChars'), 0);
         }
       } else {
         this.uiRenderer.showStatus(false, result.message);
       }
     } catch (error) {
-      this.uiRenderer.showStatus(false, `Conversion failed: ${error.message}`);
+      this.uiRenderer.showStatus(false, chrome.i18n.getMessage('errorConversionFailed', [error.message]));
     }
   }
 
@@ -155,7 +155,7 @@ export class PopupController {
       const replaceChar = formData.get('replaceInput')?.trim();
       
       if (!unicodeChar || !replaceChar) {
-        this.uiRenderer.showStatus(false, 'Both Unicode and replacement characters are required');
+        this.uiRenderer.showStatus(false, chrome.i18n.getMessage('errorBothFieldsRequired'));
         return;
       }
 
@@ -167,7 +167,7 @@ export class PopupController {
       
       // 重複チェック
       if (currentMap.hasOwnProperty(unicodeKey)) {
-        this.uiRenderer.showStatus(false, 'This Unicode character has already been added');
+        this.uiRenderer.showStatus(false, chrome.i18n.getMessage('errorCharacterExists'));
         return;
       }
 
@@ -182,12 +182,12 @@ export class PopupController {
       if (updateResult.success) {
         event.target.reset();
         await this.refreshConversionList();
-        this.uiRenderer.showStatus(true, 'Conversion character added successfully');
+        this.uiRenderer.showStatus(true, chrome.i18n.getMessage('successConversionAdded'));
       } else {
         this.uiRenderer.showStatus(false, updateResult.message);
       }
     } catch (error) {
-      this.uiRenderer.showStatus(false, `Failed to add conversion: ${error.message}`);
+      this.uiRenderer.showStatus(false, chrome.i18n.getMessage('errorAddConversionFailed', [error.message]));
     }
   }
 
@@ -214,11 +214,11 @@ export class PopupController {
       const currentMap = await this.storageService.getConversionMap();
       const currentChar = currentMap[unicodeKey];
       
-      const newChar = prompt('Edit replacement character:', currentChar);
+      const newChar = prompt(chrome.i18n.getMessage('promptEditReplacement'), currentChar);
       if (newChar === null) return; // キャンセル
       
       if (newChar.length !== 1) {
-        this.uiRenderer.showStatus(false, 'Replacement must be a single character');
+        this.uiRenderer.showStatus(false, chrome.i18n.getMessage('errorReplacementSingleChar'));
         return;
       }
 
@@ -230,12 +230,12 @@ export class PopupController {
       
       if (updateResult.success) {
         await this.refreshConversionList();
-        this.uiRenderer.showStatus(true, 'Conversion character updated successfully');
+        this.uiRenderer.showStatus(true, chrome.i18n.getMessage('successConversionUpdated'));
       } else {
         this.uiRenderer.showStatus(false, updateResult.message);
       }
     } catch (error) {
-      this.uiRenderer.showStatus(false, `Failed to edit conversion: ${error.message}`);
+      this.uiRenderer.showStatus(false, chrome.i18n.getMessage('errorEditConversionFailed', [error.message]));
     }
   }
 
@@ -255,12 +255,12 @@ export class PopupController {
       
       if (updateResult.success) {
         await this.refreshConversionList();
-        this.uiRenderer.showStatus(true, 'Conversion character deleted successfully');
+        this.uiRenderer.showStatus(true, chrome.i18n.getMessage('successConversionDeleted'));
       } else {
         this.uiRenderer.showStatus(false, updateResult.message);
       }
     } catch (error) {
-      this.uiRenderer.showStatus(false, `Failed to delete conversion: ${error.message}`);
+      this.uiRenderer.showStatus(false, chrome.i18n.getMessage('errorDeleteConversionFailed', [error.message]));
     }
   }
 
@@ -279,7 +279,7 @@ export class PopupController {
       // インポートデータの検証
       const validation = this.conversionController.validateConversionMap(importedMap);
       if (!validation.valid) {
-        this.uiRenderer.showStatus(false, `Import failed: ${validation.errors.join(', ')}`);
+        this.uiRenderer.showStatus(false, chrome.i18n.getMessage('errorImportFailed', [validation.errors.join(', ')]));
         return;
       }
 
@@ -289,12 +289,12 @@ export class PopupController {
       
       if (updateResult.success) {
         await this.refreshConversionList();
-        this.uiRenderer.showStatus(true, 'Settings imported successfully');
+        this.uiRenderer.showStatus(true, chrome.i18n.getMessage('successSettingsImported'));
       } else {
         this.uiRenderer.showStatus(false, updateResult.message);
       }
     } catch (error) {
-      this.uiRenderer.showStatus(false, `Import failed: ${error.message}`);
+      this.uiRenderer.showStatus(false, chrome.i18n.getMessage('errorImportFailed', [error.message]));
     }
   }
 
@@ -321,9 +321,9 @@ export class PopupController {
         URL.revokeObjectURL(url);
       }, 100);
       
-      this.uiRenderer.showStatus(true, 'Settings exported successfully');
+      this.uiRenderer.showStatus(true, chrome.i18n.getMessage('successSettingsExported'));
     } catch (error) {
-      this.uiRenderer.showStatus(false, `Export failed: ${error.message}`);
+      this.uiRenderer.showStatus(false, chrome.i18n.getMessage('errorExportFailed', [error.message]));
     }
   }
 
@@ -336,12 +336,12 @@ export class PopupController {
       
       if (result.success) {
         await this.refreshHistory();
-        this.uiRenderer.showStatus(true, 'History cleared successfully');
+        this.uiRenderer.showStatus(true, chrome.i18n.getMessage('successHistoryCleared'));
       } else {
         this.uiRenderer.showStatus(false, result.message);
       }
     } catch (error) {
-      this.uiRenderer.showStatus(false, `Failed to clear history: ${error.message}`);
+      this.uiRenderer.showStatus(false, chrome.i18n.getMessage('errorClearHistoryFailed', [error.message]));
     }
   }
 
@@ -352,7 +352,7 @@ export class PopupController {
     try {
       await this.uiRenderer.renderConversionList();
     } catch (error) {
-      this.uiRenderer.showStatus(false, `Failed to refresh conversion list: ${error.message}`);
+      this.uiRenderer.showStatus(false, chrome.i18n.getMessage('errorGeneric', [error.message]));
     }
   }
 
@@ -363,7 +363,7 @@ export class PopupController {
     try {
       await this.uiRenderer.renderHistory();
     } catch (error) {
-      this.uiRenderer.showStatus(false, `Failed to refresh history: ${error.message}`);
+      this.uiRenderer.showStatus(false, chrome.i18n.getMessage('errorGeneric', [error.message]));
     }
   }
 
