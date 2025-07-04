@@ -1,0 +1,25 @@
+{
+  "name": "unicode-url-converter",
+  "version": "2.0.0",
+  "description": "Chrome extension for converting Unicode characters in URLs",
+  "type": "module",
+  "scripts": {
+    "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js",
+    "test:watch": "npm test -- --watch",
+    "test:coverage": "npm test -- --coverage",
+    "lint": "eslint .",
+    "build": "npm run test && npm run lint",
+    "security-audit": "node -e \"import('./tools/SecurityAudit.js').then(m => new m.SecurityAudit().runComprehensiveAudit())\"",
+    "performance-test": "node -e \"import('./tools/PerformanceBenchmark.js').then(m => new m.PerformanceBenchmark().runComprehensiveTest())\""
+  },
+  "devDependencies": {
+    "@types/chrome": "^0.0.268",
+    "eslint": "^8.57.0",
+    "jest": "^29.7.0",
+    "jest-environment-jsdom": "^29.7.0",
+    "jsdom": "^22.1.0"
+  },
+  "keywords": ["chrome-extension", "unicode", "url-converter"],
+  "author": "Claude Code",
+  "license": "MIT"
+}

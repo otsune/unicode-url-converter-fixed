@@ -3,10 +3,10 @@
   "name": "__MSG_extName__",
   "description": "__MSG_extDescription__",
   "default_locale": "en",
-  "version": "1.0",
+  "version": "2.0.0",
   "permissions": [
     "activeTab",
-    "scripting",
+    "scripting", 
     "storage"
   ],
   "action": {
@@ -15,8 +15,21 @@
   },
   "icons": {
     "16": "icon16.png",
-    "48": "icon48.png",
+    "48": "icon48.png", 
     "128": "icon128.png"
-  }
+  },
+  "background": {
+    "service_worker": "background.js",
+    "type": "module"
+  },
+  "content_security_policy": {
+    "extension_pages": "script-src 'self'; object-src 'self'"
+  },
+  "web_accessible_resources": [
+    {
+      "resources": ["lib/Sortable.min.js"],
+      "matches": ["<all_urls>"]
+    }
+  ]
 }
 
